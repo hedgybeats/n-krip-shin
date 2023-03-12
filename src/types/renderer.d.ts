@@ -3,6 +3,9 @@ export interface NKriptApi {
     filePath: string,
     deleteOriginal: boolean
   ) => Promise<Encryptionresult>;
+  showItemInFolder: (
+    filePath: string
+  ) => Promise<void>;
   decryptFile: (
     filePath: string,
     key: string,

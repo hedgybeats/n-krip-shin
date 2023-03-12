@@ -95,6 +95,17 @@ const isDecryptionResult = (
   );
 };
 
+const formatBytes = (bytes: number, decimals = 0) => {
+  if (bytes === 0) {
+    return "0 Bytes";
+  }
+  const k = 1024;
+  const dm = decimals <= 0 ? 0 : decimals || 2;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
   const {
     encryptBtn,
@@ -133,6 +144,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     encryptDuration,
   } = getElements();
 
+  encryptedOutputPath.addEventListener("click", () => {
+    nKriptApi.showItemInFolder(encryptedOutputPath.getAttribute("data-path"));
+  });
+
+  decryptedPath.addEventListener("click", () => {
+    nKriptApi.showItemInFolder(decryptedPath.getAttribute("data-path"));
+  });
+
   encryptBtn.addEventListener("click", () => {
     encryptBtn.classList.remove("btn-secondary");
     encryptBtn.classList.add("btn-success");
@@ -158,7 +177,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   encryptInput.addEventListener("change", async (e: Event) => {
     encryptError.innerText = "";
     const target = e.target as HTMLInputElement;
-    if (target.files[0]) {
+    const targetFile = target.files[0];
+    if (targetFile) {
       const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
       // saving spinner
       encryptSpinner.classList.remove("d-none");
@@ -166,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       encryptInputContainer.classList.add("d-none");
 
       const encryptionResult = await nKriptApi
-        .encryptFile(target.files[0].path, mustDeleteFile)
+        .encryptFile(targetFile.path, mustDeleteFile)
         .catch((err) => (encryptError.innerText = err.message));
 
       // hide spinner
@@ -179,16 +199,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      encryptDuration.innerText =
-        (encryptionResult.duration / 1000).toFixed(2) + " seconds";
+      encryptDuration.innerText = `${formatBytes(targetFile.size)} in ${(
+        encryptionResult.duration / 1000
+      ).toFixed(2)} seconds`;
 
-      encryptedKey.innerHTML = `<strong class="text-danger me-2"">Key:</strong><span>${encryptionResult.key}</span>`;
+      encryptedKey.innerHTML = `<strong class="text-danger me-2">Key:</strong><span>${encryptionResult.key}</span>`;
       encryptedKey.setAttribute("data-key", encryptionResult.key);
 
-      encryptIv.innerHTML = `<strong class="text-danger me-2"">IV:</strong><span>${encryptionResult.iv}</span>`;
+      encryptIv.innerHTML = `<strong class="text-danger me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
       encryptIv.setAttribute("data-iv", encryptionResult.iv);
 
-      encryptedOutputPath.innerHTML = `<strong class="text-success me-2"">File Path:</strong><span>${encryptionResult.filePath}</span>`;
+      encryptedOutputPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${encryptionResult.filePath}</a>`;
       encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
 
       encryptResults.classList.remove("d-none");
@@ -199,7 +220,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     decryptError.innerText = "";
 
     const target = e.target as HTMLInputElement;
-    if (target.files[0]) {
+    const targetFile = target.files[0];
+    if (targetFile) {
       // show spinner
       decryptSpinner.classList.remove("d-none");
       decryptInputContainer.classList.add("d-none");
@@ -246,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ivFcError.innerText = "";
 
       const decryptResult = await nKriptApi
-        .decryptFile(target.files[0].path, keyValue, ivValue, mustDeleteFile)
+        .decryptFile(targetFile.path, keyValue, ivValue, mustDeleteFile)
         .catch((err) => (decryptError.innerText = err.message));
 
       decryptSpinner.classList.add("d-none");
@@ -261,10 +283,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      decryptDuration.innerText =
-        (decryptResult.duration / 1000).toFixed(2) + " seconds";
+      decryptDuration.innerText = `${formatBytes(targetFile.size)} in ${(
+        decryptResult.duration / 1000
+      ).toFixed(2)} seconds`;
 
-      decryptedPath.innerHTML = `<strong class="text-success me-2"">File Path:</strong><span>${decryptResult.filePath}</span>`;
+      decryptedPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${decryptResult.filePath}</a>`;
       decryptedPath.setAttribute("data-path", decryptResult.filePath);
 
       decryptResults.classList.remove("d-none");

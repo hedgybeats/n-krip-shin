@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld("nKriptApi", <NKriptApi>{
 
   decryptFile: (filePath, key, iv, deleteOriginal) =>
     ipcRenderer.invoke("decryptFile", [filePath, key, iv, deleteOriginal]),
+
+  showItemInFolder: (filePath) =>
+    ipcRenderer.invoke("showItemInFolder", [filePath]),
 });

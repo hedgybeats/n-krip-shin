@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { handleEncryptFile, handleDecryptFile } from "./encryption";
+import { shell } from "electron";
 
 // required to stop app opening up twice when installing via squirel
 if (require("electron-squirrel-startup")) app.quit();
@@ -29,6 +30,9 @@ function createWindow() {
 app.whenReady().then(() => {
   ipcMain.handle("decryptFile", handleDecryptFile);
   ipcMain.handle("encryptFile", handleEncryptFile);
+  ipcMain.handle("showItemInFolder", (_, args) =>
+    shell.showItemInFolder(args[0])
+  );
 
   createWindow();
 
