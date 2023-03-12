@@ -40,8 +40,6 @@
   },
   "typings": "renderer.d.ts",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
-    "file-saver": "^2.0.5",
-    "uuid": "^9.0.0"
+    "electron-squirrel-startup": "^1.0.0"
   }
 }

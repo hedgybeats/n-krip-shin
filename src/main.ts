@@ -1,7 +1,8 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import * as path from "path";
-import { handleDecryptFile, handleEncryptFile } from "./encryption";
+import { join } from "path";
+import { handleEncryptFile, handleDecryptFile } from "./encryption";
 
+// required to stop app opening up twice when installing via squirel
 if (require("electron-squirrel-startup")) app.quit();
 
 function createWindow() {
@@ -10,17 +11,14 @@ function createWindow() {
     width: 900,
     height: 700,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: join(__dirname, "preload.js"),
     },
     icon: "src/assets/icons/icon.ico",
     autoHideMenuBar: true,
   });
 
-  ipcMain.handle("closeApp", () => handleCloseApp(mainWindow));
-  ipcMain.handle("minimizeApp", () => handleMinimizeApp(mainWindow));
-
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  mainWindow.loadFile(join(__dirname, "../index.html"));
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 }
@@ -29,8 +27,8 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  ipcMain.handle("encryptFile", handleEncryptFile);
   ipcMain.handle("decryptFile", handleDecryptFile);
+  ipcMain.handle("encryptFile", handleEncryptFile);
 
   createWindow();
 
@@ -49,14 +47,3 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
-
-function handleCloseApp(window: BrowserWindow) {
-  window.close();
-}
-
-function handleMinimizeApp(window: BrowserWindow) {
-  window.minimize();
-}

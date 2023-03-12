@@ -1,10 +1,99 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // No Node.js APIs are available in this process unless
 // nodeIntegration is set to true in webPreferences.
 // Use preload.js to selectively enable features
+
+interface Decryptionresult {
+  duration: number;
+  filePath: string;
+}
+
+interface Encryptionresult {
+  duration: number;
+  key: string;
+  iv: string;
+  filePath: string;
+}
+
 // needed in the renderer process.
-const api = window.nKripShinApi;
+const nKriptApi = window.nKriptApi;
+
+const getElements = () => {
+  return {
+    encryptBtn: document.getElementById("encrypt-btn"),
+    encryptContainer: document.getElementById("encryption-container"),
+    encryptInput: document.getElementById(
+      "encryption-input"
+    ) as HTMLInputElement,
+    encryptInputContainer: document.getElementById(
+      "encryption-input-container"
+    ),
+    encryptSpinner: document.getElementById("encryption-spinner"),
+    encryptedKey: document.getElementById("encrypted-key"),
+    encryptedOutputPath: document.getElementById("encrypted-path"),
+    encryptIv: document.getElementById("encrypted-iv"),
+    decryptBtn: document.getElementById("decrypt-btn"),
+    decryptContainer: document.getElementById("decryption-container"),
+    decryptInput: document.getElementById(
+      "decryption-input"
+    ) as HTMLInputElement,
+    decryptInputContainer: document.getElementById(
+      "decryption-input-container"
+    ),
+    decryptSpinner: document.getElementById("decryption-spinner"),
+    keyFc: document.getElementById("keyFc") as HTMLInputElement,
+    ivFc: document.getElementById("ivFc") as HTMLInputElement,
+    keyFcError: document.getElementById("keyFc-error"),
+    ivFcError: document.getElementById("ivFc-error"),
+    decryptError: document.getElementById("decrypt-error"),
+    encryptError: document.getElementById("encrypt-error"),
+    encryptResults: document.getElementById("encrypt-results"),
+    startoverEncryptButton: document.getElementById("startover-encrypt-btn"),
+    deleteFileAfterEncrypt: document.getElementById(
+      "delete-after-encrypt"
+    ) as HTMLInputElement,
+    deleteFileAfterEncryptContainer: document.getElementById(
+      "delete-after-encrypt-container"
+    ),
+    deleteFileAfterDecrypt: document.getElementById(
+      "delete-after-decrypt"
+    ) as HTMLInputElement,
+    deleteFileAfterDecryptContainer: document.getElementById(
+      "delete-after-decrypt-container"
+    ),
+    clipboardButton: document.getElementById("clipboard-btn"),
+    clipboardCheckButton: document.getElementById("clipboard-check"),
+    startoverDecryptButton: document.getElementById("startover-decrypt-btn"),
+    decryptedPath: document.getElementById("decrypted-path"),
+    decryptResults: document.getElementById("decrypt-results"),
+    keyFcContainer: document.getElementById("key-fc-container"),
+    ivFcContainer: document.getElementById("iv-fc-container"),
+    decryptDuration: document.getElementById("decrypt-duration"),
+    encryptDuration: document.getElementById("encrypt-duration"),
+  };
+};
+
+const isEncryptionResult = (
+  result: Encryptionresult | NodeJS.ErrnoException
+): result is Encryptionresult => {
+  return (
+    (<Encryptionresult>result).filePath !== undefined &&
+    (<Encryptionresult>result).key !== undefined &&
+    (<Encryptionresult>result).iv !== undefined &&
+    (<Encryptionresult>result).duration !== undefined
+  );
+};
+
+const isDecryptionResult = (
+  result: Decryptionresult | NodeJS.ErrnoException
+): result is Decryptionresult => {
+  return (
+    (<Decryptionresult>result).filePath !== undefined &&
+    (<Decryptionresult>result).duration !== undefined
+  );
+};
 
 document.addEventListener("DOMContentLoaded", async () => {
   const {
@@ -40,6 +129,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     startoverDecryptButton,
     ivFcContainer,
     keyFcContainer,
+    decryptDuration,
+    encryptDuration,
   } = getElements();
 
   encryptBtn.addEventListener("click", () => {
@@ -65,6 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   encryptInput.addEventListener("change", async (e: Event) => {
+    encryptError.innerText = "";
     const target = e.target as HTMLInputElement;
     if (target.files[0]) {
       const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
@@ -73,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       deleteFileAfterEncryptContainer.classList.add("d-none");
       encryptInputContainer.classList.add("d-none");
 
-      const encryptionResult = await api
+      const encryptionResult = await nKriptApi
         .encryptFile(target.files[0].path, mustDeleteFile)
         .catch((err) => (encryptError.innerText = err.message));
 
@@ -81,11 +173,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       encryptSpinner.classList.add("d-none");
 
       // means error
-      if (encryptionResult.key === undefined) {
+      if (!isEncryptionResult(encryptionResult)) {
         deleteFileAfterEncryptContainer.classList.remove("d-none");
         encryptInputContainer.classList.remove("d-none");
         return;
       }
+
+      encryptDuration.innerText =
+        (encryptionResult.duration / 1000).toFixed(2) + " seconds";
 
       encryptedKey.innerHTML = `<strong class="text-danger me-2"">Key:</strong><span>${encryptionResult.key}</span>`;
       encryptedKey.setAttribute("data-key", encryptionResult.key);
@@ -101,6 +196,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   decryptInput.addEventListener("change", async (e: Event) => {
+    decryptError.innerText = "";
+
     const target = e.target as HTMLInputElement;
     if (target.files[0]) {
       // show spinner
@@ -148,14 +245,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       keyFcError.innerText = "";
       ivFcError.innerText = "";
 
-      const decryptResult = await api
+      const decryptResult = await nKriptApi
         .decryptFile(target.files[0].path, keyValue, ivValue, mustDeleteFile)
         .catch((err) => (decryptError.innerText = err.message));
 
       decryptSpinner.classList.add("d-none");
 
       // means error
-      if (decryptResult.filePath === undefined) {
+      if (!isDecryptionResult(decryptResult)) {
         // show fields again
         decryptInputContainer.classList.remove("d-none");
         deleteFileAfterDecryptContainer.classList.remove("d-none");
@@ -163,6 +260,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         ivFcContainer.classList.remove("d-none");
         return;
       }
+
+      decryptDuration.innerText =
+        (decryptResult.duration / 1000).toFixed(2) + " seconds";
 
       decryptedPath.innerHTML = `<strong class="text-success me-2"">File Path:</strong><span>${decryptResult.filePath}</span>`;
       decryptedPath.setAttribute("data-path", decryptResult.filePath);
@@ -217,56 +317,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 });
-
-function getElements() {
-  return {
-    encryptBtn: document.getElementById("encrypt-btn"),
-    encryptContainer: document.getElementById("encryption-container"),
-    encryptInput: document.getElementById(
-      "encryption-input"
-    ) as HTMLInputElement,
-    encryptInputContainer: document.getElementById(
-      "encryption-input-container"
-    ),
-    encryptSpinner: document.getElementById("encryption-spinner"),
-    encryptedKey: document.getElementById("encrypted-key"),
-    encryptedOutputPath: document.getElementById("encrypted-path"),
-    encryptIv: document.getElementById("encrypted-iv"),
-    decryptBtn: document.getElementById("decrypt-btn"),
-    decryptContainer: document.getElementById("decryption-container"),
-    decryptInput: document.getElementById(
-      "decryption-input"
-    ) as HTMLInputElement,
-    decryptInputContainer: document.getElementById(
-      "decryption-input-container"
-    ),
-    decryptSpinner: document.getElementById("decryption-spinner"),
-    keyFc: document.getElementById("keyFc") as HTMLInputElement,
-    ivFc: document.getElementById("ivFc") as HTMLInputElement,
-    keyFcError: document.getElementById("keyFc-error"),
-    ivFcError: document.getElementById("ivFc-error"),
-    decryptError: document.getElementById("decrypt-error"),
-    encryptError: document.getElementById("encrypt-error"),
-    encryptResults: document.getElementById("encrypt-results"),
-    startoverEncryptButton: document.getElementById("startover-encrypt-btn"),
-    deleteFileAfterEncrypt: document.getElementById(
-      "delete-after-encrypt"
-    ) as HTMLInputElement,
-    deleteFileAfterEncryptContainer: document.getElementById(
-      "delete-after-encrypt-container"
-    ),
-    deleteFileAfterDecrypt: document.getElementById(
-      "delete-after-decrypt"
-    ) as HTMLInputElement,
-    deleteFileAfterDecryptContainer: document.getElementById(
-      "delete-after-decrypt-container"
-    ),
-    clipboardButton: document.getElementById("clipboard-btn"),
-    clipboardCheckButton: document.getElementById("clipboard-check"),
-    startoverDecryptButton: document.getElementById("startover-decrypt-btn"),
-    decryptedPath: document.getElementById("decrypted-path"),
-    decryptResults: document.getElementById("decrypt-results"),
-    keyFcContainer: document.getElementById("key-fc-container"),
-    ivFcContainer: document.getElementById("iv-fc-container"),
-  };
-}

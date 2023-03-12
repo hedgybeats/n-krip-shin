@@ -1,20 +1,30 @@
-export interface NKripshinApi {
+export interface NKriptApi {
   encryptFile: (
     filePath: string,
     deleteOriginal: boolean
-  ) => Promise<{ file: Buffer; filePath: string; key: string; iv: string }>;
+  ) => Promise<Encryptionresult>;
   decryptFile: (
     filePath: string,
     key: string,
     iv: string,
     deleteOriginal: boolean
-  ) => Promise<{ file: Buffer; filePath: string }>;
-  closeApp(): Promise<void>;
-  minimizeApp(): Promise<void>;
+  ) => Promise<Decryptionresult>;
+}
+
+interface Encryptionresult {
+  duration: number;
+  key: string;
+  iv: string;
+  filePath: string;
+}
+
+interface Decryptionresult {
+  duration: number;
+  filePath: string;
 }
 
 declare global {
   interface Window {
-    nKripShinApi: NKripshinApi;
+    nKriptApi: NKriptApi;
   }
 }

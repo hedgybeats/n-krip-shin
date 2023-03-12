@@ -1,39 +1,155 @@
-import * as crypto from "crypto";
-import * as fs from "fs";
-import * as path from "path";
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import { createReadStream, createWriteStream, unlink } from "fs";
+import { pipeline } from "stream/promises";
+import { join } from "path";
+import { performance } from "perf_hooks";
+import { Decryptionresult, Encryptionresult } from "./types/renderer";
 
-export const encryptFile = (
-  buffer: Buffer
-): { key: string; iv: string; file: Buffer } => {
-  const key = crypto.randomBytes(32);
-  const iv = crypto.randomBytes(16);
-
-  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(key), iv);
-
-  return {
-    key: key.toString("hex"),
-    iv: iv.toString("hex"),
-    file: Buffer.concat([cipher.update(buffer), cipher.final()]),
-  };
+const isEncryptionResult = (
+  result: Encryptionresult | NodeJS.ErrnoException
+): result is Encryptionresult => {
+  return (
+    (<Encryptionresult>result).filePath !== undefined &&
+    (<Encryptionresult>result).key !== undefined &&
+    (<Encryptionresult>result).iv !== undefined &&
+    (<Encryptionresult>result).duration !== undefined
+  );
 };
 
-export const decryptFile = (
-  encrypted: Buffer,
-  key: string,
-  iv: string
-): Buffer => {
-  const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(key, "hex"),
-    Buffer.from(iv, "hex")
+const isDecryptionResult = (
+  result: Decryptionresult | NodeJS.ErrnoException
+): result is Decryptionresult => {
+  return (
+    (<Decryptionresult>result).filePath !== undefined &&
+    (<Decryptionresult>result).duration !== undefined
   );
-  return Buffer.concat([decipher.update(encrypted), decipher.final()]);
+};
+
+const deleteFileAsync = async (filePath: string): Promise<void> =>
+  new Promise((resolve, reject) => {
+    unlink(filePath, (err) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
+
+const getIncrementalFileName = (filePath: string, attempt: number) => {
+  const arr = filePath.split(".");
+  const ext = arr.pop();
+  return arr.join(".") + `(${attempt})` + `.${ext}`;
+};
+
+const generateOutFilePath = (
+  filePath: string,
+  type: "decrypted" | "encrypted"
+): string => {
+  const filePathArr = filePath.split("\\");
+  const fileNameArr = filePathArr.pop().split(".");
+  const ext = fileNameArr.pop();
+  const nameOfOutFile = fileNameArr.join(".");
+  const outputPath = filePathArr.join("\\");
+  return join(outputPath, nameOfOutFile + `(${type}).` + ext);
+};
+
+const encryptFileStream = async (
+  filePath: string,
+  attempt = 0,
+  outFilePath?: string
+): Promise<Encryptionresult> => {
+  if (outFilePath == undefined) {
+    outFilePath = generateOutFilePath(filePath, "encrypted");
+  }
+
+  const key = randomBytes(32);
+  const iv = randomBytes(16);
+
+  const res = await new Promise<Encryptionresult | NodeJS.ErrnoException>(
+    (resolve) => {
+      pipeline(
+        createReadStream(filePath),
+        createCipheriv("aes-256-cbc", Buffer.from(key), iv),
+        createWriteStream(outFilePath, { flags: "wx" })
+      )
+        .then(() =>
+          resolve({
+            key: key.toString("hex"),
+            iv: iv.toString("hex"),
+            filePath: outFilePath,
+            duration: 0,
+          })
+        )
+        .catch((err) => resolve(err));
+    }
+  );
+
+  if (isEncryptionResult(res)) {
+    return res;
+  }
+
+  // is an error
+  if (res.code === "EEXIST") {
+    attempt++;
+    const newName = getIncrementalFileName(outFilePath, attempt);
+    console.log("File exisits. Trying again with new name", newName);
+    return await encryptFileStream(filePath, attempt, newName);
+  }
+
+  throw res;
+};
+
+const decryptFileStream = async (
+  key: string,
+  iv: string,
+  filePath: string,
+  attempt = 0,
+  outFilePath?: string
+): Promise<Decryptionresult> => {
+  if (outFilePath == undefined) {
+    outFilePath = generateOutFilePath(filePath, "decrypted");
+  }
+
+  const res = await new Promise<Decryptionresult | NodeJS.ErrnoException>(
+    (resolve) => {
+      pipeline(
+        createReadStream(filePath),
+        createDecipheriv(
+          "aes-256-cbc",
+          Buffer.from(key, "hex"),
+          Buffer.from(iv, "hex")
+        ),
+        createWriteStream(outFilePath, { flags: "wx" })
+      )
+        .then(() =>
+          resolve({
+            filePath: outFilePath,
+            duration: 0,
+          })
+        )
+        .catch((err) => resolve(err));
+    }
+  );
+
+  if (isDecryptionResult(res)) {
+    return res;
+  }
+
+  // is an error
+  if (res.code === "EEXIST") {
+    attempt++;
+    const newName = getIncrementalFileName(outFilePath, attempt);
+    console.log("File exisits. Trying again with new name", newName);
+    return await encryptFileStream(filePath, attempt, newName);
+  }
+
+  throw res;
 };
 
 export const handleEncryptFile = async (
-  event: Electron.IpcMainInvokeEvent,
+  _: Electron.IpcMainInvokeEvent,
   args: (string | boolean)[]
-): Promise<{ file: Buffer; filePath: string; key: string; iv: string }> => {
+): Promise<Encryptionresult> => {
+  const start = performance.now();
+
   const filePathToEncrypt = args[0] as string;
   const deleteOriginalFile = args[1] as boolean;
 
@@ -41,32 +157,25 @@ export const handleEncryptFile = async (
     throw new Error("Inavlid filePath!");
   }
 
-  const filePathArr = filePathToEncrypt.split("\\");
-  const nameOfFileToEncrypt = filePathArr.pop();
-  const ext = nameOfFileToEncrypt.split(".").pop();
-  const outputPath = filePathArr.join("\\");
-
-  const fileData = await readFileAsync(filePathToEncrypt);
-  const { key, file, iv } = encryptFile(fileData);
-
-  //   await makeDirectoryAsync(outputPath);
-  const outputFilePath = path.join(
-    outputPath,
-    nameOfFileToEncrypt + "(encrypted)." + ext
-  );
-  await writeFileAsync(outputFilePath, file);
+  const encryptionResult = await encryptFileStream(filePathToEncrypt);
 
   if (deleteOriginalFile) {
     await deleteFileAsync(filePathToEncrypt);
   }
 
-  return { key, iv, file, filePath: outputFilePath };
+  const end = performance.now();
+
+  encryptionResult.duration = end - start;
+
+  return encryptionResult;
 };
 
 export const handleDecryptFile = async (
-  event: Electron.IpcMainInvokeEvent,
+  _: Electron.IpcMainInvokeEvent,
   args: (string | boolean)[]
-): Promise<{ file: Buffer; filePath: string }> => {
+): Promise<Decryptionresult> => {
+  const start = performance.now();
+
   const filePathToDecrypt = args[0] as string;
   const decryptKey = args[1] as string;
   const decryptIv = args[2] as string;
@@ -76,79 +185,14 @@ export const handleDecryptFile = async (
     throw new Error("Inavlid filePath!");
   }
 
-  const filePathArr = filePathToDecrypt.split("\\");
-  const nameOfFileToEncrypt = filePathArr.pop();
-  const ext = nameOfFileToEncrypt.split(".").pop();
-  const outputPath = filePathArr.join("\\");
-
-  const fileData = await readFileAsync(filePathToDecrypt);
-  const file = decryptFile(fileData, decryptKey, decryptIv);
-
-  //   await makeDirectoryAsync(outputPath);
-  const outputFilePath = path.join(
-    outputPath,
-    nameOfFileToEncrypt + "(decrypted)." + ext
-  );
-
-  await writeFileAsync(outputFilePath, file);
+  const res = await decryptFileStream(decryptKey, decryptIv, filePathToDecrypt);
 
   if (deleteOriginalFile) {
     await deleteFileAsync(filePathToDecrypt);
   }
 
-  return { file, filePath: outputFilePath };
+  const end = performance.now();
+
+  res.duration = end - start;
+  return res;
 };
-
-export const readFileAsync = async (filePath: string): Promise<Buffer> =>
-  new Promise((resolve, reject) => {
-    fs.readFile(filePath, (err, data) => {
-      if (err) reject(err);
-      resolve(data);
-    });
-  });
-
-export const writeFileAsync = async (
-  filePath: string,
-  file: Buffer,
-  attempt = 0,
-  newFilePathAttempt?: string
-): Promise<void> =>
-  new Promise((resolve, reject) => {
-    newFilePathAttempt =
-      newFilePathAttempt === undefined ? filePath : newFilePathAttempt;
-
-    fs.writeFile(newFilePathAttempt, file, { flag: "wx" }, async (err) => {
-      if (err) {
-        if (err.code === "EEXIST") {
-          attempt++;
-          const arr = filePath.split(".");
-          const ext = arr.pop();
-          const newName = arr.join(".") + `(${attempt})` + `.${ext}`;
-          console.log("File exisits. trying again with new name", newName);
-          await writeFileAsync(filePath, file, attempt, newName);
-        } else {
-          reject(err);
-        }
-      }
-      resolve();
-    });
-  });
-
-export const deleteFileAsync = async (filePath: string): Promise<void> =>
-  new Promise((resolve, reject) => {
-    fs.unlink(filePath, (err) => {
-      if (err) reject(err);
-      resolve();
-    });
-  });
-
-export const makeDirectoryAsync = async (
-  directory: string,
-  recursive = true
-): Promise<void> =>
-  new Promise((resolve, reject) => {
-    fs.mkdir(directory, { recursive }, (err) => {
-      if (err) reject(err);
-      resolve();
-    });
-  });
