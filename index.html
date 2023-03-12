@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>N KRIP SHIN</title>
+    <title>N-KRIPT</title>
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <!-- <meta
       http-equiv="Content-Security-Policy"
@@ -22,240 +22,451 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="bg-dark">
-    <div class="bg-dark-shade-1 py-2 mb-4">
-      <h1 class="mb-4 text-center">
-        <span class="text-light">N</span>
-        <span class="text-success">KRIP</span>
-        <span class="text-light">SHIN</span>
-      </h1>
-      <div class="d-flex justify-content-center mb-4">
-        <object
-          data="./src/assets/secure-files.svg"
-          type="image/svg+xml"
-        ></object>
-      </div>
-    </div>
-    <div class="w-100 d-flex justify-content-center align-items-center">
-      <button id="encrypt-btn" class="btn btn-success btn-sm m-2" type="button">
-        Encrypt
-      </button>
-      <button
-        id="decrypt-btn"
-        class="btn btn-secondary btn-sm m-2"
-        type="button"
-      >
-        Decrypt
-      </button>
-    </div>
-    <!-- encrypt -->
-    <div id="encryption-container">
-      <!-- must delete file after encryption checkbox -->
-      <div
-        id="delete-after-encrypt-container"
-        class="d-flex justify-content-center"
-      >
-        <div class="form-check mt-4">
-          <input
-            class="form-check-input green-checkbox cursor-pointer"
-            type="checkbox"
-            value=""
-            id="delete-after-encrypt"
-          />
-          <label class="form-check-label text-light" for="delete-after-encrypt">
-            Delete original file after encryption
-          </label>
+    <div class="d-flex flex-column justify-content-between w-100 h-100">
+      <!-- top section -->
+      <div>
+        <!-- banner -->
+        <div class="bg-dark-shade-1 py-2 mb-4">
+          <h1 class="mb-4 text-center text-light">
+            N<span class="text-success">-KRIPT</span>
+          </h1>
+          <div class="d-flex justify-content-center mb-4">
+            <object
+              data="./src/assets/secure-files.svg"
+              type="image/svg+xml"
+            ></object>
+          </div>
         </div>
-      </div>
-      <!-- Choose file -->
-      <div id="encryption-input-container" class="input-container my-4">
-        <input
-          type="file"
-          id="encryption-input"
-          title=""
-          class="cursor-pointer"
-        />
-        <label for="encryption-input">Browse for file to encrypt</label>
-      </div>
-
-      <!-- Error -->
-      <div id="encrypt-error" class="error w-75 text-center"></div>
-
-      <!-- Spinner -->
-      <div class="d-flex justify-content-center">
-        <div
-          id="encryption-spinner"
-          class="spinner-grow text-success d-none"
-          role="status"
-        >
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <!-- Encrypt result -->
-      <div id="encrypt-results" class="d-none">
-        <h3 class="text-center text-success my-3">Success!</h3>
-        <!-- vault logo and key/iv details -->
-        <div class="w-100 d-flex justify-content-center">
-          <div
-            class="w-75 d-flex justify-content-center align-items-center bg-light rounded shadow ps-4 pe-2 py-4"
+        <!-- buttons -->
+        <div class="w-100 d-flex justify-content-center align-items-center">
+          <button
+            id="encrypt-btn"
+            class="btn btn-success btn-sm m-2"
+            type="button"
           >
-            <div class="pe-4 overflow-break">
-              <div class="text-dark" id="encrypted-key"></div>
-              <div class="text-dark" id="encrypted-iv"></div>
-              <div class="text-dark" id="encrypted-path"></div>
-            </div>
-            <button id="clipboard-btn" class="btn unstyle" type="button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                class="bi bi-clipboard text-dark"
-                viewBox="0 0 16 16"
+            Encrypt
+          </button>
+          <button
+            id="decrypt-btn"
+            class="btn btn-secondary btn-sm m-2"
+            type="button"
+          >
+            Decrypt
+          </button>
+        </div>
+        <!-- encrypt -->
+        <div id="encryption-container">
+          <!-- must delete file after encryption checkbox -->
+          <div
+            id="delete-after-encrypt-container"
+            class="d-flex justify-content-center"
+          >
+            <div class="form-check mt-4">
+              <input
+                class="form-check-input green-checkbox cursor-pointer"
+                type="checkbox"
+                value=""
+                id="delete-after-encrypt"
+              />
+              <label
+                class="form-check-label text-light"
+                for="delete-after-encrypt"
               >
-                <path
-                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
-                />
-                <path
-                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
-                />
-              </svg>
-            </button>
-            <button
-              id="clipboard-check"
-              class="btn unstyle d-none"
-              type="button"
+                Delete original file after encryption
+              </label>
+            </div>
+          </div>
+          <!-- Choose file -->
+          <div id="encryption-input-container" class="input-container my-4">
+            <input
+              type="file"
+              id="encryption-input"
+              title=""
+              class="cursor-pointer"
+            />
+            <label for="encryption-input">Browse for file to encrypt</label>
+          </div>
+
+          <!-- Error -->
+          <div class="d-flex w-100 justify-content-center">
+            <div id="encrypt-error" class="error w-75 text-center"></div>
+          </div>
+
+          <!-- Spinner -->
+          <div class="d-flex justify-content-center">
+            <div
+              id="encryption-spinner"
+              class="spinner-grow text-success d-none my-4"
+              role="status"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                class="bi bi-clipboard-check text-success"
-                viewBox="0 0 16 16"
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Encrypt result -->
+          <div id="encrypt-results" class="d-none">
+            <h3 class="text-center text-success my-3">Success!</h3>
+            <!-- vault logo and key/iv details -->
+            <div class="w-100 d-flex justify-content-center">
+              <div
+                class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow py-2 ps-4 pe-2"
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"
-                />
-                <path
-                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
-                />
-                <path
-                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="w-100 d-flex justify-content-center my-4">
-          <div class="w-75 alert alert-danger py-2 px-4 mx-2 mb-0">
-            Keep these values safe! Without them you will not be able to decrypt
-            the file.
-          </div>
-        </div>
-        <!-- startover button -->
-        <div class="d-flex justify-content-center">
-          <button id="startover-encrypt-btn" class="btn btn-sm btn-success">
-            Start over
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- decrypt -->
-    <div id="decryption-container" class="d-none w-100">
-      <!-- must delete file after encryption checkbox -->
-      <div
-        id="delete-after-decrypt-container"
-        class="d-flex justify-content-center"
-      >
-        <div class="form-check mt-4">
-          <input
-            class="form-check-input green-checkbox cursor-pointer"
-            type="checkbox"
-            value=""
-            id="delete-after-decrypt"
-            checked
-          />
-          <label class="form-check-label text-light" for="delete-after-decrypt">
-            Delete encrypted file after decryption
-          </label>
-        </div>
-      </div>
-      <!-- key input -->
-      <div id="key-fc-container" class="w-100 d-flex justify-content-center">
-        <div class="mb-3 w-75">
-          <label for="keyFc" class="form-label text-light">Key</label>
-          <input
-            type="text"
-            class="form-control"
-            id="keyFc"
-            placeholder="Enter an encryption key."
-          />
-        </div>
-      </div>
-      <div id="keyFc-error" class="error"></div>
-
-      <!-- iv input -->
-      <div id="iv-fc-container" class="w-100 d-flex justify-content-center">
-        <div class="mb-3 w-75">
-          <label for="ivFc" class="form-label text-light">IV</label>
-          <input
-            type="text"
-            class="form-control"
-            id="ivFc"
-            placeholder="Enter an encryption IV."
-          />
-        </div>
-      </div>
-      <div id="ivFc-error" class="error"></div>
-
-      <!-- Choose file -->
-      <div id="decryption-input-container" class="input-container my-4">
-        <input
-          type="file"
-          id="decryption-input"
-          title=""
-          class="cursor-pointer"
-        />
-        <label for="decryption-input">Browse for file to decrypt</label>
-      </div>
-
-      <!-- error -->
-      <div id="decrypt-error" class="error w-75 text-center"></div>
-
-      <!-- Spinner -->
-      <div class="d-flex justify-content-center">
-        <div
-          id="decryption-spinner"
-          class="spinner-grow text-success d-none"
-          role="status"
-        >
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <!-- Decrypt result -->
-      <div id="decrypt-results" class="d-none">
-        <h3 class="text-center text-success my-3">Success!</h3>
-        <!-- svg and path details -->
-        <div class="w-100 d-flex justify-content-center mb-3">
-          <div
-            class="w-75 d-flex justify-content-center align-items-center bg-light rounded shadow ps-4 pe-2 py-4"
-          >
-            <div class="overflow-break">
-              <div class="text-dark" id="decrypted-path"></div>
+                <div class="pe-4 overflow-break">
+                  <div class="text-light" id="encrypted-key"></div>
+                  <div class="text-light" id="encrypted-iv"></div>
+                  <div class="text-light" id="encrypted-path"></div>
+                </div>
+                <button id="clipboard-btn" class="btn unstyle" type="button">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-clipboard text-light"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                    />
+                    <path
+                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  id="clipboard-check"
+                  class="btn unstyle d-none"
+                  type="button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-clipboard-check text-success"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"
+                    />
+                    <path
+                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                    />
+                    <path
+                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="w-100 d-flex justify-content-center my-4">
+              <div
+                class="w-75 alert alert-danger py-2 px-4 mx-2 mb-0 text-center"
+              >
+                Keep these values safe! Without them you will not be able to
+                decrypt the file.
+              </div>
+            </div>
+            <!-- startover button -->
+            <div class="d-flex justify-content-center">
+              <button id="startover-encrypt-btn" class="btn btn-sm btn-success">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-arrow-counterclockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+                    />
+                    <path
+                      d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+                    />
+                  </svg>
+                  <span class="ms-2">Start over</span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
-        <!-- startover button -->
-        <div class="d-flex justify-content-center">
-          <button id="startover-decrypt-btn" class="btn btn-sm btn-success">
-            Start over
+        <!-- decrypt -->
+        <div id="decryption-container" class="d-none w-100">
+          <!-- must delete file after encryption checkbox -->
+          <div
+            id="delete-after-decrypt-container"
+            class="d-flex justify-content-center"
+          >
+            <div class="form-check mt-4">
+              <input
+                class="form-check-input green-checkbox cursor-pointer"
+                type="checkbox"
+                value=""
+                id="delete-after-decrypt"
+                checked
+              />
+              <label
+                class="form-check-label text-light"
+                for="delete-after-decrypt"
+              >
+                Delete encrypted file after decryption
+              </label>
+            </div>
+          </div>
+          <!-- key input -->
+          <div
+            id="key-fc-container"
+            class="w-100 d-flex justify-content-center"
+          >
+            <div class="mb-3 w-75">
+              <label for="keyFc" class="form-label text-light">Key</label>
+              <input
+                type="text"
+                class="form-control"
+                id="keyFc"
+                placeholder="Enter an encryption key."
+              />
+            </div>
+          </div>
+          <div id="keyFc-error" class="error"></div>
+
+          <!-- iv input -->
+          <div id="iv-fc-container" class="w-100 d-flex justify-content-center">
+            <div class="mb-3 w-75">
+              <label for="ivFc" class="form-label text-light">IV</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ivFc"
+                placeholder="Enter an encryption IV."
+              />
+            </div>
+          </div>
+          <div id="ivFc-error" class="error"></div>
+
+          <!-- Choose file -->
+          <div id="decryption-input-container" class="input-container my-4">
+            <input
+              type="file"
+              id="decryption-input"
+              title=""
+              class="cursor-pointer"
+            />
+            <label for="decryption-input">Browse for file to decrypt</label>
+          </div>
+
+          <!-- error -->
+          <div class="d-flex w-100 justify-content-center">
+            <div id="decrypt-error" class="error w-75 text-center"></div>
+          </div>
+
+          <!-- Spinner -->
+          <div class="d-flex justify-content-center">
+            <div
+              id="decryption-spinner"
+              class="spinner-grow text-success d-none my-4"
+              role="status"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Decrypt result -->
+          <div id="decrypt-results" class="d-none">
+            <h3 class="text-center text-success my-3">Success!</h3>
+            <!-- svg and path details -->
+            <div class="w-100 d-flex justify-content-center mb-4">
+              <div
+                class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow ps-4 pe-2 py-4"
+              >
+                <div class="overflow-break">
+                  <div class="text-light text-center" id="decrypted-path"></div>
+                </div>
+              </div>
+            </div>
+            <!-- startover button -->
+            <div class="d-flex justify-content-center">
+              <button id="startover-decrypt-btn" class="btn btn-sm btn-success">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-arrow-counterclockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+                    />
+                    <path
+                      d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+                    />
+                  </svg>
+                  <span class="ms-2">Start over</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- bottom section -->
+      <div>
+        <!-- trigger help modal -->
+        <div class="d-flex justify-content-end mb-4 me-4">
+          <button
+            type="button"
+            class="un-style cursor-pointer"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-question-circle text-light"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+              />
+              <path
+                d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"
+              />
+            </svg>
           </button>
+        </div>
+
+        <!-- Help Modal -->
+        <div
+          class="modal fade"
+          id="helpModal"
+          tabindex="-1"
+          aria-labelledby="helpModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark">
+              <div class="modal-header bg-dark">
+                <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
+                  Welcome to
+                  <strong class="text-light">
+                    N<span class="text-success">-KRIPT</span>
+                  </strong>
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body bg-dark text-light">
+                <p>
+                  <strong class="text-light">
+                    N<span class="text-success">-KRIPT</span>
+                  </strong>
+                  is a simple desktop application that allows you to encrypt and
+                  decrypt files.
+                </p>
+                <p>
+                  With
+                  <strong class="text-light">
+                    N<span class="text-success">-KRIPT</span>
+                  </strong>
+                  , you can protect your sensitive data from prying eyes,
+                  whether you're moving it through cloud services or just
+                  storing it on your computer.
+                </p>
+                <br />
+                <h5 class="mb-3 underline">Here's how it works:</h5>
+                <p>
+                  When you encrypt a file,
+                  <strong class="text-light">
+                    N<span class="text-success">-KRIPT</span>
+                  </strong>
+                  generates an
+                  <a
+                    href="https://en.wikipedia.org/wiki/Key_(cryptography)"
+                    target="_blank"
+                    class="fst-italics"
+                    >encryption key</a
+                  >
+                  and an
+                  <a
+                    href="https://en.wikipedia.org/wiki/Initialization_vector"
+                    target="_blank"
+                    class="fst-italics"
+                    >initialization vector (IV)</a
+                  >
+                  and gives them to you.
+                </p>
+                <div class="alert alert-danger py-1 px-3 mt-2 mb-3">
+                  <small class="text-danger">
+                    You <strong>MUST</strong> copy these values and store them
+                    somewhere safe, because you'll need them to decrypt the file
+                    later!
+                  </small>
+                </div>
+                <p class="mt-2">
+                  <strong class="text-light">
+                    N<span class="text-success">-KRIPT</span>
+                  </strong>
+                  uses the Advanced Encryption Standard (AES) algorithm to
+                  encrypt your files, which is a widely-used and trusted
+                  encryption standard.
+                </p>
+                <div
+                  class="d-flex justify-content-center align-items-center pt-4"
+                >
+                  <small>Made</small>
+                  <small class="mx-2">with</small>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-peace text-info"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.018zm4.084 12.273L8.5 9.207v5.775a6.97 6.97 0 0 0 4.084-1.691zM7.5 14.982V9.207l-4.084 4.084A6.97 6.97 0 0 0 7.5 14.982zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"
+                    />
+                  </svg>
+                  <small class="mx-2">+</small>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-heart-fill text-danger"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
+                    />
+                  </svg>
+                  <small class="mx-2"> by </small>
+                  <small>
+                    <a href="https://github.com/hedgybeats" target="_blank"
+                      >hedgybeats</a
+                    >
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
     <!-- You can also require other files to run in this process -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"

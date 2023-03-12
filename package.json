@@ -1,5 +1,5 @@
 {
-  "name": "n-krip-shin",
+  "name": "n-kript",
   "version": "1.0.0",
   "description": "A simple file encryptor/decryptor.",
   "main": "dist/main.js",
@@ -12,16 +12,16 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "repository": "https://github.com/electron/electron-quick-start-typescript",
+  "repository": "https://github.com/hedgybeats/n-krip-shin",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo",
-    "typescript"
+    "Encryption",
+    "encrypt",
+    "decrypt",
+    "secure",
+    "secret",
+    "electron"
   ],
-  "author": "GitHub",
+  "author": "hedgybeats",
   "license": "CC0-1.0",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",

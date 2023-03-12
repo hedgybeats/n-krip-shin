@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
 import { handleDecryptFile, handleEncryptFile } from "./encryption";
 
+if (require("electron-squirrel-startup")) app.quit();
+
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -10,8 +12,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: "favicon-32x32.png",
-    autoHideMenuBar: false,
+    icon: "src/assets/icons/icon.ico",
+    autoHideMenuBar: true,
   });
 
   ipcMain.handle("closeApp", () => handleCloseApp(mainWindow));

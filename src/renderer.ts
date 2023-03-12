@@ -68,15 +68,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const target = e.target as HTMLInputElement;
     if (target.files[0]) {
       const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
+      // saving spinner
       encryptSpinner.classList.remove("d-none");
+      deleteFileAfterEncryptContainer.classList.add("d-none");
+      encryptInputContainer.classList.add("d-none");
+
       const encryptionResult = await api
         .encryptFile(target.files[0].path, mustDeleteFile)
         .catch((err) => (encryptError.innerText = err.message));
 
+      // hide spinner
       encryptSpinner.classList.add("d-none");
 
       // means error
       if (encryptionResult.key === undefined) {
+        deleteFileAfterEncryptContainer.classList.remove("d-none");
+        encryptInputContainer.classList.remove("d-none");
         return;
       }
 
@@ -89,8 +96,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       encryptedOutputPath.innerHTML = `<strong class="text-success me-2"">File Path:</strong><span>${encryptionResult.filePath}</span>`;
       encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
 
-      encryptInputContainer.classList.add("d-none");
-      deleteFileAfterEncryptContainer.classList.add("d-none");
       encryptResults.classList.remove("d-none");
     }
   });
@@ -98,16 +103,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   decryptInput.addEventListener("change", async (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files[0]) {
+      // show spinner
       decryptSpinner.classList.remove("d-none");
+      decryptInputContainer.classList.add("d-none");
+      deleteFileAfterDecryptContainer.classList.add("d-none");
+      keyFcContainer.classList.add("d-none");
+      ivFcContainer.classList.add("d-none");
 
       const mustDeleteFile = !!deleteFileAfterDecrypt.checked;
       const keyValue = keyFc.value;
       const ivValue = ivFc.value;
 
       let hasErrors = false;
-
-      console.log(keyValue);
-      console.log(ivValue);
 
       if (
         keyValue === null ||
@@ -128,7 +135,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (hasErrors) {
+        // hide spinner
         decryptSpinner.classList.add("d-none");
+        decryptInputContainer.classList.remove("d-none");
+        deleteFileAfterDecryptContainer.classList.remove("d-none");
+        keyFcContainer.classList.remove("d-none");
+        ivFcContainer.classList.remove("d-none");
         decryptInput.value = "";
         return;
       }
@@ -144,16 +156,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // means error
       if (decryptResult.filePath === undefined) {
+        // show fields again
+        decryptInputContainer.classList.remove("d-none");
+        deleteFileAfterDecryptContainer.classList.remove("d-none");
+        keyFcContainer.classList.remove("d-none");
+        ivFcContainer.classList.remove("d-none");
         return;
       }
 
       decryptedPath.innerHTML = `<strong class="text-success me-2"">File Path:</strong><span>${decryptResult.filePath}</span>`;
       decryptedPath.setAttribute("data-path", decryptResult.filePath);
 
-      decryptInputContainer.classList.add("d-none");
-      deleteFileAfterDecryptContainer.classList.add("d-none");
-      keyFcContainer.classList.add("d-none");
-      ivFcContainer.classList.add("d-none");
       decryptResults.classList.remove("d-none");
     }
   });
