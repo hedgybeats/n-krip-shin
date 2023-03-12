@@ -72,6 +72,32 @@ const getElements = () => {
     ivFcContainer: document.getElementById("iv-fc-container"),
     decryptDuration: document.getElementById("decrypt-duration"),
     encryptDuration: document.getElementById("encrypt-duration"),
+    startDecryptingBtn: document.getElementById("start-decrypting"),
+    startDecryptingBtnContainer: document.getElementById(
+      "start-decrypting-container"
+    ),
+    decryptionInputSelectedFileName: document.getElementById(
+      "decryption-input-selected-file-name"
+    ),
+    decryptionInputSelectedFileSize: document.getElementById(
+      "decryption-input-selected-file-size"
+    ),
+    decryptionInputSelectedFile: document.getElementById(
+      "decryption-input-selected-file-container"
+    ),
+    startEncryptingBtn: document.getElementById("start-encrypting"),
+    startEncryptingBtnContainer: document.getElementById(
+      "start-encrypting-container"
+    ),
+    encryptionInputSelectedFileName: document.getElementById(
+      "encryption-input-selected-file-name"
+    ),
+    encryptionInputSelectedFileSize: document.getElementById(
+      "encryption-input-selected-file-size"
+    ),
+    encryptionInputSelectedFile: document.getElementById(
+      "encryption-input-selected-file-container"
+    ),
   };
 };
 
@@ -107,6 +133,9 @@ const formatBytes = (bytes: number, decimals = 0) => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  let selectedFileToEncrypt: File | undefined = undefined;
+  let selectedFileToDecrypt: File | undefined = undefined;
+
   const {
     encryptBtn,
     encryptContainer,
@@ -142,6 +171,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     keyFcContainer,
     decryptDuration,
     encryptDuration,
+    startEncryptingBtn,
+    encryptionInputSelectedFileName,
+    encryptionInputSelectedFileSize,
+    encryptionInputSelectedFile,
+    startDecryptingBtn,
+    decryptionInputSelectedFileName,
+    decryptionInputSelectedFileSize,
+    decryptionInputSelectedFile,
+    startDecryptingBtnContainer,
+    startEncryptingBtnContainer,
   } = getElements();
 
   encryptedOutputPath.addEventListener("click", () => {
@@ -174,45 +213,142 @@ document.addEventListener("DOMContentLoaded", async () => {
     encryptContainer.classList.add("d-none");
   });
 
+  startEncryptingBtn.addEventListener("click", async () => {
+    const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
+    // saving spinner
+    encryptSpinner.classList.remove("d-none");
+    deleteFileAfterEncryptContainer.classList.add("d-none");
+    encryptInputContainer.classList.add("d-none");
+    encryptionInputSelectedFile.classList.add("d-none");
+    startEncryptingBtnContainer.classList.add("d-none");
+
+    const encryptionResult = await nKriptApi
+      .encryptFile(selectedFileToEncrypt.path, mustDeleteFile)
+      .catch((err) => (encryptError.innerText = err.message));
+
+    // hide spinner
+    encryptSpinner.classList.add("d-none");
+
+    // means error
+    if (!isEncryptionResult(encryptionResult)) {
+      deleteFileAfterEncryptContainer.classList.remove("d-none");
+      encryptInputContainer.classList.remove("d-none");
+      encryptionInputSelectedFile.classList.remove("d-none");
+      startEncryptingBtnContainer.classList.remove("d-none");
+      return;
+    }
+
+    encryptDuration.innerText = `${formatBytes(
+      selectedFileToEncrypt.size
+    )} in ${(encryptionResult.duration / 1000).toFixed(2)} seconds`;
+
+    encryptedKey.innerHTML = `<strong class="text-danger me-2">Key:</strong><span>${encryptionResult.key}</span>`;
+    encryptedKey.setAttribute("data-key", encryptionResult.key);
+
+    encryptIv.innerHTML = `<strong class="text-danger me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
+    encryptIv.setAttribute("data-iv", encryptionResult.iv);
+
+    encryptedOutputPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${encryptionResult.filePath}</a>`;
+    encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
+
+    encryptResults.classList.remove("d-none");
+  });
+
+  startDecryptingBtn.addEventListener("click", async () => {
+    decryptSpinner.classList.remove("d-none");
+    decryptInputContainer.classList.add("d-none");
+    deleteFileAfterDecryptContainer.classList.add("d-none");
+    keyFcContainer.classList.add("d-none");
+    ivFcContainer.classList.add("d-none");
+    decryptionInputSelectedFile.classList.add("d-none");
+    startDecryptingBtnContainer.classList.add("d-none");
+
+    const mustDeleteFile = !!deleteFileAfterDecrypt.checked;
+    const keyValue = keyFc.value;
+    const ivValue = ivFc.value;
+
+    let hasErrors = false;
+
+    if (
+      keyValue === null ||
+      keyValue === undefined ||
+      keyValue.trim().length === 0
+    ) {
+      keyFcError.innerText = "Please provide a key.";
+      hasErrors = true;
+    }
+
+    if (
+      ivValue === null ||
+      ivValue === undefined ||
+      ivValue.trim().length === 0
+    ) {
+      ivFcError.innerText = "Please provide an IV.";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      // hide spinner
+      decryptSpinner.classList.add("d-none");
+      decryptInputContainer.classList.remove("d-none");
+      deleteFileAfterDecryptContainer.classList.remove("d-none");
+      keyFcContainer.classList.remove("d-none");
+      ivFcContainer.classList.remove("d-none");
+      decryptInput.value = "";
+      return;
+    }
+
+    keyFcError.innerText = "";
+    ivFcError.innerText = "";
+
+    const decryptResult = await nKriptApi
+      .decryptFile(
+        selectedFileToDecrypt.path,
+        keyValue,
+        ivValue,
+        mustDeleteFile
+      )
+      .catch((err) => (decryptError.innerText = err.message));
+
+    decryptSpinner.classList.add("d-none");
+
+    // means error
+    if (!isDecryptionResult(decryptResult)) {
+      // show fields again
+      decryptInputContainer.classList.remove("d-none");
+      deleteFileAfterDecryptContainer.classList.remove("d-none");
+      keyFcContainer.classList.remove("d-none");
+      ivFcContainer.classList.remove("d-none");
+      decryptionInputSelectedFile.classList.remove("d-none");
+      startDecryptingBtnContainer.classList.remove("d-none");
+      return;
+    }
+
+    decryptDuration.innerText = `${formatBytes(
+      selectedFileToDecrypt.size
+    )} in ${(decryptResult.duration / 1000).toFixed(2)} seconds`;
+
+    decryptedPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${decryptResult.filePath}</a>`;
+    decryptedPath.setAttribute("data-path", decryptResult.filePath);
+
+    decryptResults.classList.remove("d-none");
+  });
+
   encryptInput.addEventListener("change", async (e: Event) => {
     encryptError.innerText = "";
     const target = e.target as HTMLInputElement;
     const targetFile = target.files[0];
     if (targetFile) {
-      const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
-      // saving spinner
-      encryptSpinner.classList.remove("d-none");
-      deleteFileAfterEncryptContainer.classList.add("d-none");
-      encryptInputContainer.classList.add("d-none");
-
-      const encryptionResult = await nKriptApi
-        .encryptFile(targetFile.path, mustDeleteFile)
-        .catch((err) => (encryptError.innerText = err.message));
-
-      // hide spinner
-      encryptSpinner.classList.add("d-none");
-
-      // means error
-      if (!isEncryptionResult(encryptionResult)) {
-        deleteFileAfterEncryptContainer.classList.remove("d-none");
-        encryptInputContainer.classList.remove("d-none");
-        return;
-      }
-
-      encryptDuration.innerText = `${formatBytes(targetFile.size)} in ${(
-        encryptionResult.duration / 1000
-      ).toFixed(2)} seconds`;
-
-      encryptedKey.innerHTML = `<strong class="text-danger me-2">Key:</strong><span>${encryptionResult.key}</span>`;
-      encryptedKey.setAttribute("data-key", encryptionResult.key);
-
-      encryptIv.innerHTML = `<strong class="text-danger me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
-      encryptIv.setAttribute("data-iv", encryptionResult.iv);
-
-      encryptedOutputPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${encryptionResult.filePath}</a>`;
-      encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
-
-      encryptResults.classList.remove("d-none");
+      selectedFileToEncrypt = targetFile;
+      encryptionInputSelectedFile.classList.remove("d-none");
+      encryptionInputSelectedFileName.innerText = targetFile.name;
+      encryptionInputSelectedFileSize.innerText = formatBytes(targetFile.size);
+      startEncryptingBtnContainer.classList.remove("d-none");
+    } else {
+      encryptionInputSelectedFile.classList.add("d-none");
+      encryptionInputSelectedFileName.innerText = "";
+      encryptionInputSelectedFileSize.innerText = "";
+      startEncryptingBtnContainer.classList.add("d-none");
     }
   });
 
@@ -222,75 +358,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const target = e.target as HTMLInputElement;
     const targetFile = target.files[0];
     if (targetFile) {
-      // show spinner
-      decryptSpinner.classList.remove("d-none");
-      decryptInputContainer.classList.add("d-none");
-      deleteFileAfterDecryptContainer.classList.add("d-none");
-      keyFcContainer.classList.add("d-none");
-      ivFcContainer.classList.add("d-none");
-
-      const mustDeleteFile = !!deleteFileAfterDecrypt.checked;
-      const keyValue = keyFc.value;
-      const ivValue = ivFc.value;
-
-      let hasErrors = false;
-
-      if (
-        keyValue === null ||
-        keyValue === undefined ||
-        keyValue.trim().length === 0
-      ) {
-        keyFcError.innerText = "Please provide a key.";
-        hasErrors = true;
-      }
-
-      if (
-        ivValue === null ||
-        ivValue === undefined ||
-        ivValue.trim().length === 0
-      ) {
-        ivFcError.innerText = "Please provide an IV.";
-        hasErrors = true;
-      }
-
-      if (hasErrors) {
-        // hide spinner
-        decryptSpinner.classList.add("d-none");
-        decryptInputContainer.classList.remove("d-none");
-        deleteFileAfterDecryptContainer.classList.remove("d-none");
-        keyFcContainer.classList.remove("d-none");
-        ivFcContainer.classList.remove("d-none");
-        decryptInput.value = "";
-        return;
-      }
-
-      keyFcError.innerText = "";
-      ivFcError.innerText = "";
-
-      const decryptResult = await nKriptApi
-        .decryptFile(targetFile.path, keyValue, ivValue, mustDeleteFile)
-        .catch((err) => (decryptError.innerText = err.message));
-
-      decryptSpinner.classList.add("d-none");
-
-      // means error
-      if (!isDecryptionResult(decryptResult)) {
-        // show fields again
-        decryptInputContainer.classList.remove("d-none");
-        deleteFileAfterDecryptContainer.classList.remove("d-none");
-        keyFcContainer.classList.remove("d-none");
-        ivFcContainer.classList.remove("d-none");
-        return;
-      }
-
-      decryptDuration.innerText = `${formatBytes(targetFile.size)} in ${(
-        decryptResult.duration / 1000
-      ).toFixed(2)} seconds`;
-
-      decryptedPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${decryptResult.filePath}</a>`;
-      decryptedPath.setAttribute("data-path", decryptResult.filePath);
-
-      decryptResults.classList.remove("d-none");
+      selectedFileToDecrypt = targetFile;
+      decryptionInputSelectedFile.classList.remove("d-none");
+      decryptionInputSelectedFileName.innerText = targetFile.name;
+      decryptionInputSelectedFileSize.innerText = formatBytes(targetFile.size);
+      startDecryptingBtnContainer.classList.remove("d-none");
+    } else {
+      decryptionInputSelectedFile.classList.add("d-none");
+      decryptionInputSelectedFileName.innerText = "";
+      decryptionInputSelectedFileSize.innerText = "";
+      startDecryptingBtnContainer.classList.add("d-none");
     }
   });
 
@@ -303,6 +380,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     encryptResults.classList.add("d-none");
     clipboardButton.classList.remove("d-none");
     clipboardCheckButton.classList.add("d-none");
+    selectedFileToEncrypt = undefined;
   });
 
   startoverDecryptButton.addEventListener("click", () => {
@@ -315,6 +393,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     decryptInputContainer.classList.remove("d-none");
     deleteFileAfterDecryptContainer.classList.remove("d-none");
     decryptResults.classList.add("d-none");
+    selectedFileToDecrypt = undefined;
   });
 
   clipboardButton.addEventListener("click", async () => {
