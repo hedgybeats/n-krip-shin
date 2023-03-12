@@ -12,7 +12,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "repository": "https://github.com/hedgybeats/n-krip-shin",
+  "repository": "https://github.com/hedgybeats/n-kript",
   "keywords": [
     "Encryption",
     "encrypt",
