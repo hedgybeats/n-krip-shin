@@ -1,17 +1,19 @@
 export interface NKriptApi {
   encryptFile: (
+    algorithm: string,
     filePath: string,
     deleteOriginal: boolean
   ) => Promise<Encryptionresult>;
-  showItemInFolder: (
-    filePath: string
-  ) => Promise<void>;
   decryptFile: (
+    algorithm: string,
     filePath: string,
     key: string,
     iv: string,
     deleteOriginal: boolean
   ) => Promise<Decryptionresult>;
+  showItemInFolder: (filePath: string) => Promise<void>;
+  getAvailableCiphers: () => Promise<string[]>;
+  cipherRequiresIv: (cipher: string) => Promise<boolean>;
 }
 
 interface Encryptionresult {

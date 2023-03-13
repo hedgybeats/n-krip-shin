@@ -1,4 +1,10 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  getCipherInfo,
+  getCiphers,
+  randomBytes,
+} from "crypto";
 import { createReadStream, createWriteStream, unlink } from "fs";
 import { pipeline } from "stream/promises";
 import { join } from "path";
@@ -39,6 +45,22 @@ const getIncrementalFileName = (filePath: string, attempt: number) => {
   return arr.join(".") + `(${attempt})` + `.${ext}`;
 };
 
+export const getAvailableCiphers = (): string[] => getCiphers();
+
+export const cipherRequiresIv = (cipher: string): boolean => {
+  const info = getCipherInfo(cipher);
+
+  const hasIv = !(
+    info === null ||
+    info === undefined ||
+    info.ivLength === undefined ||
+    info.ivLength === null
+  );
+
+  // IV required if IVlength is present
+  return hasIv;
+};
+
 const generateOutFilePath = (
   filePath: string,
   type: "decrypted" | "encrypted"
@@ -52,6 +74,7 @@ const generateOutFilePath = (
 };
 
 const encryptFileStream = async (
+  algorithm: string,
   filePath: string,
   attempt = 0,
   outFilePath?: string
@@ -60,20 +83,25 @@ const encryptFileStream = async (
     outFilePath = generateOutFilePath(filePath, "encrypted");
   }
 
-  const key = randomBytes(32);
-  const iv = randomBytes(16);
+  const cipherInfo = getCipherInfo(algorithm);
+
+  const key = randomBytes(cipherInfo.keyLength);
+  const iv =
+    cipherInfo.ivLength === undefined || cipherInfo.ivLength === null
+      ? null
+      : randomBytes(cipherInfo.ivLength);
 
   const res = await new Promise<Encryptionresult | NodeJS.ErrnoException>(
     (resolve) => {
       pipeline(
         createReadStream(filePath),
-        createCipheriv("aes-256-cbc", Buffer.from(key), iv),
+        createCipheriv(algorithm, Buffer.from(key), iv),
         createWriteStream(outFilePath, { flags: "wx" })
       )
         .then(() =>
           resolve({
             key: key.toString("hex"),
-            iv: iv.toString("hex"),
+            iv: iv === null ? "" : iv.toString("hex"),
             filePath: outFilePath,
             duration: 0,
           })
@@ -91,13 +119,14 @@ const encryptFileStream = async (
     attempt++;
     const newName = getIncrementalFileName(outFilePath, attempt);
     console.log("File exisits. Trying again with new name", newName);
-    return await encryptFileStream(filePath, attempt, newName);
+    return await encryptFileStream(algorithm, filePath, attempt, newName);
   }
 
   throw res;
 };
 
 const decryptFileStream = async (
+  algorithm: string,
   key: string,
   iv: string,
   filePath: string,
@@ -113,7 +142,7 @@ const decryptFileStream = async (
       pipeline(
         createReadStream(filePath),
         createDecipheriv(
-          "aes-256-cbc",
+          algorithm,
           Buffer.from(key, "hex"),
           Buffer.from(iv, "hex")
         ),
@@ -138,7 +167,7 @@ const decryptFileStream = async (
     attempt++;
     const newName = getIncrementalFileName(outFilePath, attempt);
     console.log("File exisits. Trying again with new name", newName);
-    return await encryptFileStream(filePath, attempt, newName);
+    return await encryptFileStream(algorithm, filePath, attempt, newName);
   }
 
   throw res;
@@ -150,14 +179,18 @@ export const handleEncryptFile = async (
 ): Promise<Encryptionresult> => {
   const start = performance.now();
 
-  const filePathToEncrypt = args[0] as string;
-  const deleteOriginalFile = args[1] as boolean;
+  const algorithm = args[0] as string;
+  const filePathToEncrypt = args[1] as string;
+  const deleteOriginalFile = args[2] as boolean;
 
   if (filePathToEncrypt.trim().length === 0) {
     throw new Error("Inavlid filePath!");
   }
 
-  const encryptionResult = await encryptFileStream(filePathToEncrypt);
+  const encryptionResult = await encryptFileStream(
+    algorithm,
+    filePathToEncrypt
+  );
 
   if (deleteOriginalFile) {
     await deleteFileAsync(filePathToEncrypt);
@@ -176,16 +209,22 @@ export const handleDecryptFile = async (
 ): Promise<Decryptionresult> => {
   const start = performance.now();
 
-  const filePathToDecrypt = args[0] as string;
-  const decryptKey = args[1] as string;
-  const decryptIv = args[2] as string;
-  const deleteOriginalFile = args[3] as boolean;
+  const algorithm = args[0] as string;
+  const filePathToDecrypt = args[1] as string;
+  const decryptKey = args[2] as string;
+  const decryptIv = args[3] as string;
+  const deleteOriginalFile = args[4] as boolean;
 
   if (filePathToDecrypt.trim().length === 0) {
     throw new Error("Inavlid filePath!");
   }
 
-  const res = await decryptFileStream(decryptKey, decryptIv, filePathToDecrypt);
+  const res = await decryptFileStream(
+    algorithm,
+    decryptKey,
+    decryptIv,
+    filePathToDecrypt
+  );
 
   if (deleteOriginalFile) {
     await deleteFileAsync(filePathToDecrypt);

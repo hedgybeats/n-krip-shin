@@ -98,6 +98,29 @@ const getElements = () => {
     encryptionInputSelectedFile: document.getElementById(
       "encryption-input-selected-file-container"
     ),
+    selectDecryptAlgorithmContainer: document.getElementById(
+      "select-decrypt-algorithm-container"
+    ),
+    selectEncryptAlgorithmContainer: document.getElementById(
+      "select-encrypt-algorithm-container"
+    ),
+    selectDecryptAlgorithm: document.getElementById(
+      "select-decrypt-algorithm"
+    ) as HTMLSelectElement,
+    selectEncryptAlgorithm: document.getElementById(
+      "select-encrypt-algorithm"
+    ) as HTMLSelectElement,
+    selectDefaultAlgorithm: document.getElementById(
+      "select-default-algorithm"
+    ) as HTMLSelectElement,
+    selectEncrypAlgorithmError: document.getElementById(
+      "select-decrypt-algorithm-error"
+    ),
+    selectDecrypAlgorithmError: document.getElementById(
+      "select-encrypt-algorithm-error"
+    ),
+    encryptRemoveFileButton: document.getElementById("encrypt-remove-file"),
+    decryptRemoveFileButton: document.getElementById("decrypt-remove-file"),
   };
 };
 
@@ -135,6 +158,7 @@ const formatBytes = (bytes: number, decimals = 0) => {
 document.addEventListener("DOMContentLoaded", async () => {
   let selectedFileToEncrypt: File | undefined = undefined;
   let selectedFileToDecrypt: File | undefined = undefined;
+  const availableCiphers = await nKriptApi.getAvailableCiphers();
 
   const {
     encryptBtn,
@@ -149,8 +173,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     encryptInput,
     ivFc,
     keyFc,
-    ivFcError,
     keyFcError,
+    ivFcError,
     decryptError,
     encryptError,
     encryptResults,
@@ -181,7 +205,60 @@ document.addEventListener("DOMContentLoaded", async () => {
     decryptionInputSelectedFile,
     startDecryptingBtnContainer,
     startEncryptingBtnContainer,
+    selectDecryptAlgorithmContainer,
+    selectEncryptAlgorithmContainer,
+    selectDecryptAlgorithm,
+    selectEncryptAlgorithm,
+    selectDefaultAlgorithm,
+    selectDecrypAlgorithmError,
+    selectEncrypAlgorithmError,
+    decryptRemoveFileButton,
+    encryptRemoveFileButton,
   } = getElements();
+
+  let defaultAlgorithm: string | null =
+    window.localStorage.getItem("default-algorithm");
+
+  if (defaultAlgorithm === null) {
+    window.localStorage.setItem("default-algorithm", "aes-256-cbc");
+    defaultAlgorithm = "aes-256-cbc";
+  }
+
+  // set default cipher algorithm
+  for (const cipher of availableCiphers) {
+    const encryptOpt = document.createElement("option");
+    const decryptOpt = document.createElement("option");
+    const defaultOpt = document.createElement("option");
+
+    decryptOpt.value = cipher;
+    decryptOpt.innerHTML = cipher;
+    encryptOpt.value = cipher;
+    encryptOpt.innerHTML = cipher;
+    defaultOpt.value = cipher;
+    defaultOpt.innerHTML = cipher;
+
+    // default to default algorithm or hard coded default
+    if (cipher === defaultAlgorithm) {
+      encryptOpt.selected = true;
+      decryptOpt.selected = true;
+      defaultOpt.selected = true;
+    }
+
+    selectEncryptAlgorithm.options.add(encryptOpt);
+    selectDecryptAlgorithm.options.add(decryptOpt);
+    selectDefaultAlgorithm.options.add(defaultOpt);
+  }
+
+  // store default algorithm on change
+  selectDefaultAlgorithm.addEventListener("change", (e: Event) => {
+    const target = e.target as HTMLSelectElement;
+    if (target) {
+      window.localStorage.setItem("default-algorithm", target.value);
+
+      selectEncryptAlgorithm.value = target.value;
+      selectDecryptAlgorithm.value = target.value;
+    }
+  });
 
   encryptedOutputPath.addEventListener("click", () => {
     nKriptApi.showItemInFolder(encryptedOutputPath.getAttribute("data-path"));
@@ -214,16 +291,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   startEncryptingBtn.addEventListener("click", async () => {
+    encryptError.innerText = "";
+
     const mustDeleteFile = !!deleteFileAfterEncrypt.checked;
     // saving spinner
     encryptSpinner.classList.remove("d-none");
     deleteFileAfterEncryptContainer.classList.add("d-none");
     encryptInputContainer.classList.add("d-none");
+    selectEncryptAlgorithmContainer.classList.add("d-none");
     encryptionInputSelectedFile.classList.add("d-none");
     startEncryptingBtnContainer.classList.add("d-none");
 
+    const algorithmValue = selectEncryptAlgorithm.value;
+    let hasErrors = false;
+
+    if (
+      algorithmValue === null ||
+      algorithmValue === undefined ||
+      algorithmValue.trim().length === 0
+    ) {
+      selectEncrypAlgorithmError.innerText =
+        "Please provide select an algorithm.";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      //show fields again
+      encryptSpinner.classList.add("d-none");
+      deleteFileAfterEncryptContainer.classList.remove("d-none");
+      encryptInputContainer.classList.remove("d-none");
+      selectEncryptAlgorithmContainer.classList.remove("d-none");
+      encryptionInputSelectedFile.classList.remove("d-none");
+      startEncryptingBtnContainer.classList.remove("d-none");
+      return;
+    }
+
+    selectEncrypAlgorithmError.innerText = "";
+
     const encryptionResult = await nKriptApi
-      .encryptFile(selectedFileToEncrypt.path, mustDeleteFile)
+      .encryptFile(algorithmValue, selectedFileToEncrypt.path, mustDeleteFile)
       .catch((err) => (encryptError.innerText = err.message));
 
     // hide spinner
@@ -233,6 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!isEncryptionResult(encryptionResult)) {
       deleteFileAfterEncryptContainer.classList.remove("d-none");
       encryptInputContainer.classList.remove("d-none");
+      selectEncryptAlgorithmContainer.classList.remove("d-none");
       encryptionInputSelectedFile.classList.remove("d-none");
       startEncryptingBtnContainer.classList.remove("d-none");
       return;
@@ -255,17 +362,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   startDecryptingBtn.addEventListener("click", async () => {
+    encryptError.innerText = "";
+
     decryptSpinner.classList.remove("d-none");
     decryptInputContainer.classList.add("d-none");
     deleteFileAfterDecryptContainer.classList.add("d-none");
     keyFcContainer.classList.add("d-none");
     ivFcContainer.classList.add("d-none");
     decryptionInputSelectedFile.classList.add("d-none");
+    selectDecryptAlgorithmContainer.classList.add("d-none");
     startDecryptingBtnContainer.classList.add("d-none");
 
     const mustDeleteFile = !!deleteFileAfterDecrypt.checked;
     const keyValue = keyFc.value;
     const ivValue = ivFc.value;
+    const algorithmValue = selectDecryptAlgorithm.value;
 
     let hasErrors = false;
 
@@ -278,12 +389,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       hasErrors = true;
     }
 
+    const requiresIv = await nKriptApi.cipherRequiresIv(algorithmValue);
+
     if (
-      ivValue === null ||
-      ivValue === undefined ||
-      ivValue.trim().length === 0
+      requiresIv &&
+      (ivValue === null || ivValue === undefined || ivValue.trim().length === 0)
     ) {
       ivFcError.innerText = "Please provide an IV.";
+      hasErrors = true;
+    }
+
+    if (
+      algorithmValue === null ||
+      algorithmValue === undefined ||
+      algorithmValue.trim().length === 0
+    ) {
+      selectDecrypAlgorithmError.innerText =
+        "Please provide select an algorithm.";
       hasErrors = true;
     }
 
@@ -292,6 +414,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       decryptSpinner.classList.add("d-none");
       decryptInputContainer.classList.remove("d-none");
       deleteFileAfterDecryptContainer.classList.remove("d-none");
+      selectDecryptAlgorithmContainer.classList.remove("d-none");
+      decryptionInputSelectedFile.classList.remove("d-none");
+      selectDecryptAlgorithmContainer.classList.remove("d-none");
+      startDecryptingBtnContainer.classList.remove("d-none");
       keyFcContainer.classList.remove("d-none");
       ivFcContainer.classList.remove("d-none");
       decryptInput.value = "";
@@ -300,9 +426,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     keyFcError.innerText = "";
     ivFcError.innerText = "";
+    selectDecrypAlgorithmError.innerText = "";
 
     const decryptResult = await nKriptApi
       .decryptFile(
+        algorithmValue,
         selectedFileToDecrypt.path,
         keyValue,
         ivValue,
@@ -319,6 +447,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       deleteFileAfterDecryptContainer.classList.remove("d-none");
       keyFcContainer.classList.remove("d-none");
       ivFcContainer.classList.remove("d-none");
+      selectDecryptAlgorithmContainer.classList.remove("d-none");
       decryptionInputSelectedFile.classList.remove("d-none");
       startDecryptingBtnContainer.classList.remove("d-none");
       return;
@@ -344,6 +473,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       encryptionInputSelectedFileName.innerText = targetFile.name;
       encryptionInputSelectedFileSize.innerText = formatBytes(targetFile.size);
       startEncryptingBtnContainer.classList.remove("d-none");
+      encryptInputContainer.classList.add("d-none");
     } else {
       encryptionInputSelectedFile.classList.add("d-none");
       encryptionInputSelectedFileName.innerText = "";
@@ -363,6 +493,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       decryptionInputSelectedFileName.innerText = targetFile.name;
       decryptionInputSelectedFileSize.innerText = formatBytes(targetFile.size);
       startDecryptingBtnContainer.classList.remove("d-none");
+      decryptInputContainer.classList.add("d-none");
     } else {
       decryptionInputSelectedFile.classList.add("d-none");
       decryptionInputSelectedFileName.innerText = "";
@@ -371,12 +502,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  encryptRemoveFileButton.addEventListener("click", () => {
+    encryptionInputSelectedFile.classList.add("d-none");
+    encryptionInputSelectedFileName.innerText = "";
+    encryptionInputSelectedFileSize.innerText = "";
+    startEncryptingBtnContainer.classList.add("d-none");
+    encryptInputContainer.classList.remove("d-none");
+  });
+
+  decryptRemoveFileButton.addEventListener("click", () => {
+    decryptionInputSelectedFile.classList.add("d-none");
+    decryptionInputSelectedFileName.innerText = "";
+    decryptionInputSelectedFileSize.innerText = "";
+    startDecryptingBtnContainer.classList.add("d-none");
+    decryptInputContainer.classList.remove("d-none");
+  });
+
   startoverEncryptButton.addEventListener("click", () => {
     encryptInput.value = "";
     encryptedKey.innerHTML = "";
     encryptIv.innerHTML = "";
     encryptInputContainer.classList.remove("d-none");
     deleteFileAfterEncryptContainer.classList.remove("d-none");
+    selectEncryptAlgorithmContainer.classList.remove("d-none");
     encryptResults.classList.add("d-none");
     clipboardButton.classList.remove("d-none");
     clipboardCheckButton.classList.add("d-none");
@@ -392,6 +540,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ivFcContainer.classList.remove("d-none");
     decryptInputContainer.classList.remove("d-none");
     deleteFileAfterDecryptContainer.classList.remove("d-none");
+    selectDecryptAlgorithmContainer.classList.remove("d-none");
     decryptResults.classList.add("d-none");
     selectedFileToDecrypt = undefined;
   });

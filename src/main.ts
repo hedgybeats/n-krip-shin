@@ -1,6 +1,11 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
-import { handleEncryptFile, handleDecryptFile } from "./encryption";
+import {
+  handleEncryptFile,
+  handleDecryptFile,
+  getAvailableCiphers,
+  cipherRequiresIv,
+} from "./encryption";
 import { shell } from "electron";
 
 // required to stop app opening up twice when installing via squirel
@@ -33,6 +38,8 @@ app.whenReady().then(() => {
   ipcMain.handle("showItemInFolder", (_, args) =>
     shell.showItemInFolder(args[0])
   );
+  ipcMain.handle("getAvailableCiphers", () => getAvailableCiphers());
+  ipcMain.handle("cipherRequiresIv", (_, args) => cipherRequiresIv(args[0]));
 
   createWindow();
 
