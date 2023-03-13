@@ -33,6 +33,7 @@ const getElements = () => {
     encryptSpinner: document.getElementById("encryption-spinner"),
     encryptedKey: document.getElementById("encrypted-key"),
     encryptedOutputPath: document.getElementById("encrypted-path"),
+    encryptedAlgorithm: document.getElementById("encrypted-algorithm"),
     encryptIv: document.getElementById("encrypted-iv"),
     decryptBtn: document.getElementById("decrypt-btn"),
     decryptContainer: document.getElementById("decryption-container"),
@@ -121,6 +122,12 @@ const getElements = () => {
     ),
     encryptRemoveFileButton: document.getElementById("encrypt-remove-file"),
     decryptRemoveFileButton: document.getElementById("decrypt-remove-file"),
+    deleteAfterEncryptDefault: document.getElementById(
+      "default-delete-after-encrypt"
+    ) as HTMLInputElement,
+    deleteAfterDecryptDefault: document.getElementById(
+      "default-delete-after-decrypt"
+    ) as HTMLInputElement,
   };
 };
 
@@ -156,6 +163,22 @@ const formatBytes = (bytes: number, decimals = 0) => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // NOT POSSIBLE TO RESTORE IF MASTER PASSWORD LOST!!!!!!!!!!
+  // i want to allow user to select a master password if the app is run for thge first time
+  // i want the app to then encrypt the secret db using that password
+  // i will store a bcrypthash of the master password in the masterpassword table of a separate un-encrypted database
+
+  // everytime the user needs  to access the db,
+  // we will ask for the master password from the uncencrypted table, 
+  // then need to check if supplied password is match. if not show error.
+
+  // if match, decrypt secret db decrypted, then read/write data and encrypt again when done
+  // maybe allow for rescure email on creation so that if master password is lost then an email can get sent to the email 
+  const userKey = window.prompt(
+    "Enter a master password for storing secrets. (max 32 characters)",
+    "SteamyAvoAndBakedBroccoliIsGood!"
+  );
+
   let selectedFileToEncrypt: File | undefined = undefined;
   let selectedFileToDecrypt: File | undefined = undefined;
   const availableCiphers = await nKriptApi.getAvailableCiphers();
@@ -184,6 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     deleteFileAfterEncrypt,
     deleteFileAfterDecrypt,
     encryptedOutputPath,
+    encryptedAlgorithm,
     deleteFileAfterEncryptContainer,
     deleteFileAfterDecryptContainer,
     clipboardButton,
@@ -214,7 +238,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectEncrypAlgorithmError,
     decryptRemoveFileButton,
     encryptRemoveFileButton,
+    deleteAfterEncryptDefault,
+    deleteAfterDecryptDefault,
   } = getElements();
+
+  const preferDeleteAfterEncrypt = window.localStorage.getItem(
+    "prefer-delete-after-encrypt"
+  );
+  deleteFileAfterEncrypt.checked =
+    preferDeleteAfterEncrypt === null
+      ? false
+      : preferDeleteAfterEncrypt === "1";
+  deleteAfterEncryptDefault.checked =
+    preferDeleteAfterEncrypt === null
+      ? false
+      : preferDeleteAfterEncrypt === "1";
+
+  const preferDeleteAfterDecrypt = window.localStorage.getItem(
+    "prefer-delete-after-decrypt"
+  );
+  deleteFileAfterDecrypt.checked =
+    preferDeleteAfterDecrypt === null
+      ? false
+      : preferDeleteAfterDecrypt === "1";
+  deleteAfterDecryptDefault.checked =
+    preferDeleteAfterDecrypt === null
+      ? false
+      : preferDeleteAfterDecrypt === "1";
 
   let defaultAlgorithm: string | null =
     window.localStorage.getItem("default-algorithm");
@@ -257,6 +307,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       selectEncryptAlgorithm.value = target.value;
       selectDecryptAlgorithm.value = target.value;
+    }
+  });
+
+  // store default values on changes
+  deleteAfterEncryptDefault.addEventListener("change", (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target) {
+      window.localStorage.setItem(
+        "prefer-delete-after-encrypt",
+        target.checked ? "1" : "0"
+      );
+
+      deleteFileAfterEncrypt.checked = target.checked;
+    }
+  });
+
+  deleteAfterDecryptDefault.addEventListener("change", (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target) {
+      window.localStorage.setItem(
+        "prefer-delete-after-decrypt",
+        target.checked ? "1" : "0"
+      );
+
+      deleteFileAfterDecrypt.checked = target.checked;
     }
   });
 
@@ -349,11 +424,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedFileToEncrypt.size
     )} in ${(encryptionResult.duration / 1000).toFixed(2)} seconds`;
 
-    encryptedKey.innerHTML = `<strong class="text-danger me-2">Key:</strong><span>${encryptionResult.key}</span>`;
+    encryptedKey.innerHTML = `<strong class="text-success me-2">Key:</strong><span>${encryptionResult.key}</span>`;
     encryptedKey.setAttribute("data-key", encryptionResult.key);
 
-    encryptIv.innerHTML = `<strong class="text-danger me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
+    encryptIv.innerHTML = `<strong class="text-success me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
     encryptIv.setAttribute("data-iv", encryptionResult.iv);
+
+    encryptedAlgorithm.innerHTML = `<strong class="text-success me-2">Algorithm:</strong><span>${algorithmValue}</span>`;
+    encryptedAlgorithm.setAttribute("data-algorithm", algorithmValue);
 
     encryptedOutputPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${encryptionResult.filePath}</a>`;
     encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
@@ -545,26 +623,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectedFileToDecrypt = undefined;
   });
 
-  clipboardButton.addEventListener("click", async () => {
+  const copyEncryptionResults = async () => {
     await navigator.clipboard.writeText(
       JSON.stringify({
         key: encryptedKey.getAttribute("data-key"),
         iv: encryptIv.getAttribute("data-iv"),
+        algorithm: encryptedAlgorithm.getAttribute("data-algorithm"),
         path: encryptedOutputPath.getAttribute("data-path"),
       })
     );
+  };
+
+  clipboardButton.addEventListener("click", async () => {
+    await copyEncryptionResults();
 
     clipboardButton.classList.add("d-none");
     clipboardCheckButton.classList.remove("d-none");
   });
 
   clipboardCheckButton.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(
-      JSON.stringify({
-        key: encryptedKey.getAttribute("data-key"),
-        iv: encryptIv.getAttribute("data-iv"),
-        path: encryptedOutputPath.getAttribute("data-path"),
-      })
-    );
+    await copyEncryptionResults();
   });
 });

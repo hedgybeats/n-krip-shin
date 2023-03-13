@@ -104,7 +104,7 @@
               >
               <select
                 id="select-encrypt-algorithm"
-                class="form-select form-select-sm bg-dark text-light  cursor-pointer"
+                class="form-select form-select-sm bg-dark text-light cursor-pointer"
                 aria-label=".form-select-sm example"
               >
                 <option disabled selected>Encryption algorithm</option>
@@ -128,36 +128,37 @@
           >
             <div class="w-100 d-flex justify-content-center">
               <div
-                class="d-flex justify-content-center align-items-center w-75"
+                class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="2rem"
-                  height="2rem"
-                  fill="currentColor"
-                  class="bi bi-file-earmark-text-fill text-light me-2"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
-                  />
-                </svg>
-                <!-- selected file -->
-                <div>
-                  <h4
-                    id="encryption-input-selected-file-name"
-                    class="file-name text-success"
-                  ></h4>
-                  <p
-                    id="encryption-input-selected-file-size"
-                    class="file-size text-secondary"
-                  ></p>
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="2rem"
+                    height="2rem"
+                    fill="currentColor"
+                    class="bi bi-file-earmark-text-fill text-warning me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
+                    />
+                  </svg>
+                  <div class="overflow-break">
+                    <h4
+                      id="encryption-input-selected-file-name"
+                      class="file-name text-success overflow-break"
+                    ></h4>
+                    <p
+                      id="encryption-input-selected-file-size"
+                      class="file-size text-secondary"
+                    ></p>
+                  </div>
                 </div>
                 <button id="encrypt-remove-file" class="un-style">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="1.25rem"
-                    height="1.25rem"
+                    width="1.75rem"
+                    height="1.75rem"
                     fill="currentColor"
                     class="bi bi-x-circle ms-3 text-danger"
                     viewBox="0 0 16 16"
@@ -244,66 +245,72 @@
             <!-- encryption result details -->
             <div class="w-100 d-flex justify-content-center">
               <div
-                class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow py-2 ps-4 pe-2"
+                class="w-75 d-flex overflow-break justify-content-center align-items-center bg-dark-shade-1 rounded shadow py-2 ps-4 pe-2"
               >
-                <div class="pe-4">
-                  <div
-                    class="text-light overflow-break"
-                    id="encrypted-key"
-                  ></div>
-                  <div
-                    class="text-light overflow-break"
-                    id="encrypted-iv"
-                  ></div>
-                  <div
-                    class="text-light overflow-break"
-                    id="encrypted-path"
-                  ></div>
-                </div>
+                <div class="d-flex align-items-center">
+                  <div class="pe-4 w-100 overflow-break">
+                    <div
+                      class="text-light overflow-break"
+                      id="encrypted-key"
+                    ></div>
+                    <div
+                      class="text-light overflow-break"
+                      id="encrypted-iv"
+                    ></div>
+                    <div
+                      class="text-light overflow-break"
+                      id="encrypted-algorithm"
+                    ></div>
+                    <div
+                      class="text-light overflow-break"
+                      id="encrypted-path"
+                    ></div>
+                  </div>
 
-                <!-- copy to clipboard buttons -->
-                <button id="clipboard-btn" class="btn unstyle" type="button">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-clipboard text-light"
-                    viewBox="0 0 16 16"
+                  <!-- copy to clipboard buttons -->
+                  <button id="clipboard-btn" class="btn unstyle" type="button">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-clipboard text-warning"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                      />
+                      <path
+                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    id="clipboard-check"
+                    class="btn unstyle d-none"
+                    type="button"
                   >
-                    <path
-                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
-                    />
-                    <path
-                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  id="clipboard-check"
-                  class="btn unstyle d-none"
-                  type="button"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-clipboard-check text-success"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"
-                    />
-                    <path
-                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
-                    />
-                    <path
-                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-clipboard-check text-success"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"
+                      />
+                      <path
+                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                      />
+                      <path
+                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             <div class="w-100 d-flex justify-content-center my-4">
@@ -390,7 +397,7 @@
               >
               <select
                 id="select-decrypt-algorithm"
-                class="form-select form-select-sm bg-dark text-light  cursor-pointer"
+                class="form-select form-select-sm bg-dark text-light cursor-pointer"
                 aria-label=".form-select-sm example"
               >
                 <option disabled selected>Decryption algorithm</option>
@@ -414,35 +421,37 @@
           >
             <div class="w-100 d-flex justify-content-center">
               <div
-                class="d-flex justify-content-center align-items-center w-75"
+                class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="2rem"
-                  height="2rem"
-                  fill="currentColor"
-                  class="bi bi-file-earmark-text-fill text-light me-2"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
-                  />
-                </svg>
-                <div>
-                  <h4
-                    id="decryption-input-selected-file-name"
-                    class="file-name text-success"
-                  ></h4>
-                  <p
-                    id="decryption-input-selected-file-size"
-                    class="file-size text-secondary"
-                  ></p>
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="2rem"
+                    height="2rem"
+                    fill="currentColor"
+                    class="bi bi-file-earmark-text-fill text-warning me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
+                    />
+                  </svg>
+                  <div class="overflow-break">
+                    <h4
+                      id="decryption-input-selected-file-name"
+                      class="file-name text-success overflow-break"
+                    ></h4>
+                    <p
+                      id="decryption-input-selected-file-size"
+                      class="file-size text-secondary overflow-break"
+                    ></p>
+                  </div>
                 </div>
                 <button id="decrypt-remove-file" class="un-style">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="1.25rem"
-                    height="1.25rem"
+                    width="1.75rem"
+                    height="1.75rem"
                     fill="currentColor"
                     class="bi bi-x-circle ms-3 text-danger"
                     viewBox="0 0 16 16"
@@ -530,7 +539,7 @@
             <!-- decryption result details -->
             <div class="w-100 d-flex justify-content-center mb-4">
               <div
-                class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow ps-4 pe-2 py-4"
+                class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow p-4"
               >
                 <div class="overflow-break">
                   <div class="text-light text-center" id="decrypted-path"></div>
@@ -580,10 +589,10 @@
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="1rem"
-              height="1rem"
+              width="1.25rem"
+              height="1.25rem"
               fill="currentColor"
-              class="bi bi-gear text-light"
+              class="bi bi-gear text-light green-hover"
               viewBox="0 0 16 16"
             >
               <path
@@ -602,10 +611,10 @@
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="1rem"
-              height="1rem"
+              width="1.25rem"
+              height="1.25rem"
               fill="currentColor"
-              class="bi bi-question-circle text-light"
+              class="bi bi-question-circle text-light green-hover"
               viewBox="0 0 16 16"
             >
               <path
@@ -644,15 +653,48 @@
               </div>
               <div class="modal-body bg-dark text-light p-4">
                 <div class="d-flex w-100 align-items-center">
-                  <h6 class="me-2">Default algorithm:</h6>
+                  <h6 class="me-2 w-50">Prefered algorithm:</h6>
                   <select
                     id="select-default-algorithm"
                     class="form-select form-select-sm bg-dark text-light cursor-pointer"
                     aria-label=".form-select-sm example"
                   >
-                    <option disabled selected>Default algorithm</option>
+                    <option disabled selected>Prefered algorithm</option>
                     <!-- options to be inserted here -->
                   </select>
+                </div>
+                <div class="d-flex w-100 align-items-center mt-3">
+                  <h6 class="me-2 w-50">Default values:</h6>
+                  <div class="w-100">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input green-checkbox cursor-pointer"
+                        type="checkbox"
+                        value=""
+                        id="default-delete-after-encrypt"
+                      />
+                      <label
+                        class="form-check-label text-light cursor-pointer"
+                        for="default-delete-after-encrypt"
+                      >
+                        <small>Delete file after encryption</small>
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input green-checkbox cursor-pointer"
+                        type="checkbox"
+                        value=""
+                        id="default-delete-after-decrypt"
+                      />
+                      <label
+                        class="form-check-label text-light cursor-pointer"
+                        for="default-delete-after-decrypt"
+                      >
+                        <small>Delete file after decryption</small>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -730,6 +772,7 @@
                   </small>
                 </div>
                 <p class="mt-2">
+                  By default,
                   <strong class="text-light">
                     N<span class="text-success">-KRIPT</span>
                   </strong>
@@ -793,7 +836,6 @@
         </div>
       </div>
     </div>
-
     <!-- scripts -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"

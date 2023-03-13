@@ -73,14 +73,17 @@ const generateOutFilePath = (
   return join(outputPath, nameOfOutFile + `(${type}).` + ext);
 };
 
-const encryptFileStream = async (
+export const encryptFileStream = async (
   algorithm: string,
   filePath: string,
   attempt = 0,
-  outFilePath?: string
+  outFilePath?: string,
+  overwrite = false
 ): Promise<Encryptionresult> => {
   if (outFilePath == undefined) {
-    outFilePath = generateOutFilePath(filePath, "encrypted");
+    outFilePath = overwrite
+      ? filePath
+      : generateOutFilePath(filePath, "encrypted");
   }
 
   const cipherInfo = getCipherInfo(algorithm);
@@ -96,7 +99,7 @@ const encryptFileStream = async (
       pipeline(
         createReadStream(filePath),
         createCipheriv(algorithm, Buffer.from(key), iv),
-        createWriteStream(outFilePath, { flags: "wx" })
+        createWriteStream(outFilePath, overwrite ? undefined : { flags: "wx" })
       )
         .then(() =>
           resolve({
@@ -125,16 +128,20 @@ const encryptFileStream = async (
   throw res;
 };
 
-const decryptFileStream = async (
+export const decryptFileStream = async (
   algorithm: string,
   key: string,
   iv: string,
   filePath: string,
   attempt = 0,
-  outFilePath?: string
+  outFilePath?: string,
+  overwrite = false
+
 ): Promise<Decryptionresult> => {
   if (outFilePath == undefined) {
-    outFilePath = generateOutFilePath(filePath, "decrypted");
+    outFilePath = overwrite
+    ? filePath
+    : generateOutFilePath(filePath, "decrypted");
   }
 
   const res = await new Promise<Decryptionresult | NodeJS.ErrnoException>(
@@ -146,7 +153,7 @@ const decryptFileStream = async (
           Buffer.from(key, "hex"),
           Buffer.from(iv, "hex")
         ),
-        createWriteStream(outFilePath, { flags: "wx" })
+        createWriteStream(outFilePath, overwrite ? undefined : { flags: "wx" })
       )
         .then(() =>
           resolve({

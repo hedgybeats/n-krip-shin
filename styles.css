@@ -40,6 +40,7 @@
 
 .overflow-break {
   overflow-wrap: break-word !important;
+  word-break: break-all !important;
 }
 
 input.green-checkbox:checked {
@@ -191,4 +192,19 @@ div.alert.alert-danger {
   font-weight: 500;
   margin: 0;
   margin-bottom: 0.25rem;
+}
+
+.form-control,
+.form-select {
+  border-color: #0f5132 !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem #0f513246 !important;
+}
+
+.green-hover:hover {
+  color: #198754 !important;
 }
