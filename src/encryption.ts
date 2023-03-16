@@ -9,7 +9,6 @@ import { createReadStream, createWriteStream, unlink } from "fs";
 import { pipeline } from "stream/promises";
 import { join } from "path";
 import { performance } from "perf_hooks";
-import { Decryptionresult, Encryptionresult } from "./types/renderer";
 
 const isEncryptionResult = (
   result: Encryptionresult | NodeJS.ErrnoException

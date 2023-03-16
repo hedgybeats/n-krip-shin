@@ -6,16 +6,15 @@ import {
   getAvailableCiphers,
   cipherRequiresIv,
   encryptFileStream,
-  decryptFileStream,
 } from "./encryption";
 import { shell } from "electron";
 import * as sqlite3 from "sqlite3";
 import { existsSync } from "fs";
 import { dirname } from "path";
 import { createHash } from "crypto";
+import { compileHandlebarsTemplate } from "./templating";
+
 let key = "SteamyAvoAndBakedBroccoliIsGood!";
-
-
 
 key = createHash("sha256").update(key).digest("base64").substring(0, 33);
 console.log(key);
@@ -113,13 +112,16 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, "../index.html"));
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  ipcMain.handle("compileHandlebarsTemplate", (_, args) =>
+    compileHandlebarsTemplate(args[0], args[1])
+  );
   ipcMain.handle("decryptFile", handleDecryptFile);
   ipcMain.handle("encryptFile", handleEncryptFile);
   ipcMain.handle("showItemInFolder", (_, args) =>
@@ -145,3 +147,24 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+//TODO Allow for a folder to be encrypted as a feature
+//TODO Investigate progress bar for large files
+//TODO Secret vault with a master password
+//TODO save to vault shortcut
+// NOT POSSIBLE TO RESTORE IF MASTER PASSWORD LOST!!!!!!!!!!
+// i want to allow user to select a master password if the app is run for thge first time
+// i want the app to then encrypt the secret db using that password
+// i will store a bcrypthash of the master password in the masterpassword table of a separate un-encrypted database
+
+// everytime the user needs  to access the db,
+// we will ask for the master password from the uncencrypted table,
+// then need to check if supplied password is match. if not show error.
+
+// if match, decrypt secret db decrypted, then read/write data and encrypt again when done
+// maybe allow for rescure email on creation so that if master password is lost then an email can get sent to the email
+
+//  const userKey = window.prompt(
+// "Enter a master password for storing secrets. (max 32 characters)",
+//  "SteamyAvoAndBakedBroccoliIsGood!"
+//);

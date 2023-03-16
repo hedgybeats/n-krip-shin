@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { NKriptApi } from "./types/renderer";
 
 contextBridge.exposeInMainWorld("nKriptApi", <NKriptApi>{
   encryptFile: (algorithm, filePath, deleteOriginal) =>
@@ -21,4 +20,7 @@ contextBridge.exposeInMainWorld("nKriptApi", <NKriptApi>{
 
   cipherRequiresIv: (cipher: string) =>
     ipcRenderer.invoke("cipherRequiresIv", [cipher]),
+
+  compileHandlebarsTemplate: <TData>(html: string, data: TData) =>
+    ipcRenderer.invoke("compileHandlebarsTemplate", [html, data]),
 });

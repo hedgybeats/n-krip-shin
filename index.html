@@ -21,22 +21,22 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="bg-dark">
-    <div class="d-flex flex-column justify-content-between w-100 h-100">
+  <body class="bg-dark fancy-scrollbar">
+    <!-- banner -->
+    <div id="banner" class="bg-dark-shade-1 pb-2 pt-3">
+      <h1 class="mb-4 text-center text-light">
+        N<span class="text-success">-KRIPT</span>
+      </h1>
+      <div class="d-flex justify-content-center mb-4">
+        <object
+          data="./src/assets/svgs/secure-files.svg"
+          type="image/svg+xml"
+        ></object>
+      </div>
+    </div>
+    <div id="content" class="d-flex flex-column justify-content-between w-100">
       <!-- main content -->
-      <div>
-        <!-- banner -->
-        <div class="bg-dark-shade-1 pb-2 pt-3 mb-4 shadow">
-          <h1 class="mb-4 text-center text-light">
-            N<span class="text-success">-KRIPT</span>
-          </h1>
-          <div class="d-flex justify-content-center mb-4">
-            <object
-              data="./src/assets/svgs/secure-files.svg"
-              type="image/svg+xml"
-            ></object>
-          </div>
-        </div>
+      <div class="mt-3">
         <!-- encrypt/decrypt buttons -->
         <div
           class="w-100 d-flex justify-content-center align-items-center mb-2"
@@ -575,260 +575,317 @@
         </div>
       </div>
 
-      <!-- footer -->
+      <!-- bottom of page -->
       <div>
-        <!-- trigger modals -->
-        <div
-          class="d-flex justify-content-between align-items-center mb-4 mx-4"
-        >
-          <button
-            type="button"
-            class="un-style cursor-pointer"
-            data-bs-toggle="modal"
-            data-bs-target="#settingsModal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1.25rem"
-              height="1.25rem"
-              fill="currentColor"
-              class="bi bi-gear text-light green-hover"
-              viewBox="0 0 16 16"
+        <!-- secret vault -->
+        <div class="collapse" id="collapseSecretVault">
+          <div class="shadow text-light pt-3 mt-4">
+            <div
+              id="key-vault-header"
+              class="d-flex justify-content-center align-items-center fs-4 mb-3 text-center text-light"
             >
-              <path
-                d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"
-              />
-              <path
-                d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="un-style cursor-pointer"
-            data-bs-toggle="modal"
-            data-bs-target="#helpModal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1.25rem"
-              height="1.25rem"
-              fill="currentColor"
-              class="bi bi-question-circle text-light green-hover"
-              viewBox="0 0 16 16"
-            >
-              <path
-                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-              />
-              <path
-                d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"
-              />
-            </svg>
-          </button>
+              <span class="me-2">Key Vault</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.5rem"
+                height="1.5rem"
+                fill="currentColor"
+                class="bi bi-incognito text-success"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"
+                />
+              </svg>
+            </div>
+            <div id="vault-body" class="pb-2"></div>
+          </div>
         </div>
 
-        <!-- settings modal -->
-        <div
-          class="modal fade"
-          id="settingsModal"
-          tabindex="-1"
-          aria-labelledby="settingsModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-              <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-4 text-light" id="seetingsModalLabel">
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span>
-                  </strong>
-                  settings
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body bg-dark text-light p-4">
-                <div class="d-flex w-100 align-items-center">
-                  <h6 class="me-2 w-50">Prefered algorithm:</h6>
-                  <select
-                    id="select-default-algorithm"
-                    class="form-select form-select-sm bg-dark text-light cursor-pointer"
-                    aria-label=".form-select-sm example"
+        <!-- footer -->
+        <div class="mt-3">
+          <!-- trigger modals -->
+          <div
+            class="d-flex justify-content-between align-items-center mb-3 mx-4"
+          >
+            <button
+              type="button"
+              class="un-style cursor-pointer"
+              data-bs-toggle="modal"
+              data-bs-target="#settingsModal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.25rem"
+                height="1.25rem"
+                fill="currentColor"
+                class="bi bi-gear text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"
+                />
+                <path
+                  d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"
+                />
+              </svg>
+            </button>
+            <button
+              id="toggle-vault"
+              class="un-style cursor-pointer"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseSecretVault"
+              aria-expanded="false"
+              aria-controls="collapseSecretVault"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.5rem"
+                height="1.5rem"
+                fill="currentColor"
+                class="bi bi-incognito text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="un-style cursor-pointer"
+              data-bs-toggle="modal"
+              data-bs-target="#helpModal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.25rem"
+                height="1.25rem"
+                fill="currentColor"
+                class="bi bi-question-circle text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                />
+                <path
+                  d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- settings modal -->
+          <div
+            class="modal fade"
+            id="settingsModal"
+            tabindex="-1"
+            aria-labelledby="settingsModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1
+                    class="modal-title fs-4 text-light"
+                    id="seetingsModalLabel"
                   >
-                    <option disabled selected>Prefered algorithm</option>
-                    <!-- options to be inserted here -->
-                  </select>
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span>
+                    </strong>
+                    settings
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                 </div>
-                <div class="d-flex w-100 align-items-center mt-3">
-                  <h6 class="me-2 w-50">Default values:</h6>
-                  <div class="w-100">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input green-checkbox cursor-pointer"
-                        type="checkbox"
-                        value=""
-                        id="default-delete-after-encrypt"
-                      />
-                      <label
-                        class="form-check-label text-light cursor-pointer"
-                        for="default-delete-after-encrypt"
-                      >
-                        <small>Delete file after encryption</small>
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input green-checkbox cursor-pointer"
-                        type="checkbox"
-                        value=""
-                        id="default-delete-after-decrypt"
-                      />
-                      <label
-                        class="form-check-label text-light cursor-pointer"
-                        for="default-delete-after-decrypt"
-                      >
-                        <small>Delete file after decryption</small>
-                      </label>
+                <div class="modal-body bg-dark text-light p-4">
+                  <div class="d-flex w-100 align-items-center">
+                    <h6 class="me-2 w-50">Prefered algorithm:</h6>
+                    <select
+                      id="select-default-algorithm"
+                      class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                      aria-label=".form-select-sm example"
+                    >
+                      <option disabled selected>Prefered algorithm</option>
+                      <!-- options to be inserted here -->
+                    </select>
+                  </div>
+                  <div class="d-flex w-100 align-items-center mt-3">
+                    <h6 class="me-2 w-50">Default values:</h6>
+                    <div class="w-100">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input green-checkbox cursor-pointer"
+                          type="checkbox"
+                          value=""
+                          id="default-delete-after-encrypt"
+                        />
+                        <label
+                          class="form-check-label text-light cursor-pointer"
+                          for="default-delete-after-encrypt"
+                        >
+                          <small>Delete file after encryption</small>
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input green-checkbox cursor-pointer"
+                          type="checkbox"
+                          value=""
+                          id="default-delete-after-decrypt"
+                        />
+                        <label
+                          class="form-check-label text-light cursor-pointer"
+                          for="default-delete-after-decrypt"
+                        >
+                          <small>Delete file after decryption</small>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- help Modal -->
-        <div
-          class="modal fade"
-          id="helpModal"
-          tabindex="-1"
-          aria-labelledby="helpModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-              <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
-                  Welcome to
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span>
-                  </strong>
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body bg-dark text-light p-4">
-                <p>
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span>
-                  </strong>
-                  is a simple desktop application that allows you to encrypt and
-                  decrypt files.
-                </p>
-                <p>
-                  With
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span> </strong
-                  >, you can protect your sensitive data from prying eyes,
-                  whether you're moving it through cloud services or just
-                  storing it on your computer.
-                </p>
-                <br />
-                <h5 class="mb-3 underline">Here's how it works:</h5>
-                <p>
-                  When you encrypt a file,
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span>
-                  </strong>
-                  generates an
-                  <a
-                    href="https://en.wikipedia.org/wiki/Key_(cryptography)"
-                    target="_blank"
-                    class="fst-italics"
-                    >encryption key</a
-                  >
-                  and an
-                  <a
-                    href="https://en.wikipedia.org/wiki/Initialization_vector"
-                    target="_blank"
-                    class="fst-italics"
-                    >initialization vector (IV)</a
-                  >
-                  and gives them to you.
-                </p>
-                <div class="alert alert-danger text-center py-1 px-3 mt-2 mb-3">
-                  <small class="text-danger">
-                    You <strong>MUST</strong> copy these values and store them
-                    somewhere safe, because you'll need them to decrypt the file
-                    later!
-                  </small>
+          <!-- help Modal -->
+          <div
+            class="modal fade"
+            id="helpModal"
+            tabindex="-1"
+            aria-labelledby="helpModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
+                    Welcome to
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span>
+                    </strong>
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                 </div>
-                <p class="mt-2">
-                  By default,
-                  <strong class="text-light">
-                    N<span class="text-success">-KRIPT</span>
-                  </strong>
-                  uses the Advanced Encryption Standard (AES) algorithm to
-                  encrypt your files, which is a widely-used and trusted
-                  encryption standard.
-                </p>
-                <div
-                  class="alert alert-success text-center py-1 px-3 mt-2 mb-3"
-                >
-                  <small>
-                    The number of possible combinations of a 256-bit AES key is
-                    2^256, which is an incredibly large number! To put it in
-                    perspective, the estimated number of atoms in the
-                    <strong>observable universe</strong> is around 10^80, which
-                    is much smaller than the number of possible combinations of
-                    a 256-bit key.
-                  </small>
-                </div>
-                <div
-                  class="d-flex justify-content-center align-items-center pt-4"
-                >
-                  <small>Made</small>
-                  <small class="mx-2">with</small>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-peace text-info"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.018zm4.084 12.273L8.5 9.207v5.775a6.97 6.97 0 0 0 4.084-1.691zM7.5 14.982V9.207l-4.084 4.084A6.97 6.97 0 0 0 7.5 14.982zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"
-                    />
-                  </svg>
-                  <small class="mx-2">+</small>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-heart-fill text-danger"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
-                    />
-                  </svg>
-                  <small class="mx-2"> by </small>
-                  <small>
-                    <a href="https://github.com/hedgybeats" target="_blank"
-                      >hedgybeats</a
+                <div class="modal-body bg-dark text-light p-4">
+                  <p>
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span>
+                    </strong>
+                    is a simple desktop application that allows you to encrypt
+                    and decrypt files.
+                  </p>
+                  <p>
+                    With
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span> </strong
+                    >, you can protect your sensitive data from prying eyes,
+                    whether you're moving it through cloud services or just
+                    storing it on your computer.
+                  </p>
+                  <br />
+                  <h5 class="mb-3 underline">Here's how it works:</h5>
+                  <p>
+                    When you encrypt a file,
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span>
+                    </strong>
+                    generates an
+                    <a
+                      href="https://en.wikipedia.org/wiki/Key_(cryptography)"
+                      target="_blank"
+                      class="fst-italics"
+                      >encryption key</a
                     >
-                  </small>
+                    and an
+                    <a
+                      href="https://en.wikipedia.org/wiki/Initialization_vector"
+                      target="_blank"
+                      class="fst-italics"
+                      >initialization vector (IV)</a
+                    >
+                    and gives them to you.
+                  </p>
+                  <div
+                    class="alert alert-danger text-center py-1 px-3 mt-2 mb-3"
+                  >
+                    <small class="text-danger">
+                      You <strong>MUST</strong> copy these values and store them
+                      somewhere safe, because you'll need them to decrypt the
+                      file later!
+                    </small>
+                  </div>
+                  <p class="mt-2">
+                    By default,
+                    <strong class="text-light">
+                      N<span class="text-success">-KRIPT</span>
+                    </strong>
+                    uses the Advanced Encryption Standard (AES) algorithm to
+                    encrypt your files, which is a widely-used and trusted
+                    encryption standard.
+                  </p>
+                  <div
+                    class="alert alert-success text-center py-1 px-3 mt-2 mb-3"
+                  >
+                    <small>
+                      The number of possible combinations of a 256-bit AES key
+                      is 2^256, which is an incredibly large number! To put it
+                      in perspective, the estimated number of atoms in the
+                      <strong>observable universe</strong> is around 10^80,
+                      which is much smaller than the number of possible
+                      combinations of a 256-bit key.
+                    </small>
+                  </div>
+                  <div
+                    class="d-flex justify-content-center align-items-center pt-4"
+                  >
+                    <small>Made</small>
+                    <small class="mx-2">with</small>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-peace text-info"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.018zm4.084 12.273L8.5 9.207v5.775a6.97 6.97 0 0 0 4.084-1.691zM7.5 14.982V9.207l-4.084 4.084A6.97 6.97 0 0 0 7.5 14.982zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"
+                      />
+                    </svg>
+                    <small class="mx-2">+</small>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-heart-fill text-danger"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
+                      />
+                    </svg>
+                    <small class="mx-2"> by </small>
+                    <small>
+                      <a href="https://github.com/hedgybeats" target="_blank"
+                        >hedgybeats</a
+                      >
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>
