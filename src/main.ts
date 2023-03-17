@@ -4,54 +4,49 @@ import {
   handleEncryptFile,
   handleDecryptFile,
   getAvailableCiphers,
-  cipherRequiresIv,
-  encryptFileStream,
+  cipherRequiresIv
 } from "./encryption";
 import { shell } from "electron";
-import * as sqlite3 from "sqlite3";
-import { existsSync } from "fs";
-import { dirname } from "path";
-import { createHash } from "crypto";
 import { compileHandlebarsTemplate } from "./templating";
 
-let key = "SteamyAvoAndBakedBroccoliIsGood!";
+// let key = "SteamyAvoAndBakedBroccoliIsGood!";
 
-key = createHash("sha256").update(key).digest("base64").substring(0, 33);
-console.log(key);
+// key = createHash("sha256").update(key).digest("base64").substring(0, 33);
+// console.log(key);
 
-const appDir = dirname(require.main.filename);
+// const appDir = dirname(require.main.filename);
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcrypt = require("bcrypt");
-const noDb = !existsSync("src/app.db");
-const db = new sqlite3.Database("src/app.db");
+// // eslint-disable-next-line @typescript-eslint/no-var-requires
+// const bcrypt = require("bcrypt");
+// const noDb = !existsSync("src/app.db");
+// const db = new sqlite3.Database("src/app.db");
 
-db.serialize(() => {
-  // create secrets table
-  db.run(
-    "CREATE TABLE IF NOT EXISTS secrets (name TEXT, keyHash TEXT, ivHash TEXT)"
-  );
+// db.serialize(() => {
+//   // create secrets table
+//   db.run(
+//     "CREATE TABLE IF NOT EXISTS secrets (name TEXT, keyHash TEXT, ivHash TEXT)"
+//   );
 
-  // db.each(
-  //   "SELECT rowid AS id, name, keyHash, ivHash FROM secrets",
-  //   (err, row) => {
-  //     console.log(row.id + ": " + row.info);
-  //   }
-  // );
-});
+//   // db.each(
+//   //   "SELECT rowid AS id, name, keyHash, ivHash FROM secrets",
+//   //   (err, row) => {
+//   //     console.log(row.id + ": " + row.info);
+//   //   }
+//   // );
+// });
 
-db.close();
+// db.close();
 
-if (noDb) {
-  console.log("Encrypting database");
-  encryptFileStream(
-    "aes-256-cbc",
-    join(appDir, "src/app.db"),
-    undefined,
-    undefined,
-    true
-  );
-}
+// if (noDb) {
+//   console.log("Encrypting database");
+//   encryptFileStream(
+//     "aes-256-cbc",
+//     join(appDir, "src/app.db"),
+//     undefined,
+//     undefined,
+//     true
+//   );
+// }
 
 // setTimeout(() => {
 //   // decryptFileStream(
@@ -70,29 +65,29 @@ if (noDb) {
 //   );
 // }, 10000);
 
-const bcryptHash = async (password: string, saltRounds = 10) =>
-  new Promise((resolve, reject) => {
-    bcrypt.hash(password, saltRounds, function (err: unknown, hash: string) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(hash);
-      }
-    });
-  });
+// const bcryptHash = async (password: string, saltRounds = 10) =>
+//   new Promise((resolve, reject) => {
+//     bcrypt.hash(password, saltRounds, function (err: unknown, hash: string) {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(hash);
+//       }
+//     });
+//   });
 
-const addSecretToDb = async (
-  secretName: string,
-  key: string,
-  hash: string,
-  secretPassword: string
-) => {
-  const keyHash = await bcryptHash(secretPassword);
+// const addSecretToDb = async (
+//   secretName: string,
+//   key: string,
+//   hash: string,
+//   secretPassword: string
+// ) => {
+//   const keyHash = await bcryptHash(secretPassword);
 
-  const stmt = db.prepare("INSERT INTO secrets VALUES (?, ?, ?)");
-  stmt.run(secretName, secretPassword);
-  stmt.finalize();
-};
+//   const stmt = db.prepare("INSERT INTO secrets VALUES (?, ?, ?)");
+//   stmt.run(secretName, secretPassword);
+//   stmt.finalize();
+// };
 
 // required to stop app opening up twice when installing via squirel
 if (require("electron-squirrel-startup")) app.quit();
@@ -112,7 +107,7 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, "../index.html"));
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished

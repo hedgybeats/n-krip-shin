@@ -11,7 +11,7 @@
     "start-hot": "npm run watch && electron ./dist/main.js",
     "start-forge": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "npm run build && electron-forge make"
   },
   "repository": "https://github.com/hedgybeats/n-kript",
   "keywords": [
@@ -42,9 +42,7 @@
   },
   "typings": "renderer.d.ts",
   "dependencies": {
-    "bcrypt": "^5.1.0",
     "electron-squirrel-startup": "^1.0.0",
-    "handlebars": "^4.7.7",
-    "sqlite3": "^5.1.5"
+    "handlebars": "^4.7.7"
   }
 }
