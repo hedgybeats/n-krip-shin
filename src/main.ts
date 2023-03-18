@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import {
   handleEncryptFile,
   handleDecryptFile,
   getAvailableCiphers,
-  cipherRequiresIv
+  cipherRequiresIv,
 } from "./encryption";
 import { shell } from "electron";
 import { compileHandlebarsTemplate } from "./templating";
+import * as Database from"better-sqlite3";
+const db = new Database("src/nkript.db");
+db.pragma("journal_mode = WAL");
 
 // let key = "SteamyAvoAndBakedBroccoliIsGood!";
 
@@ -19,21 +23,28 @@ import { compileHandlebarsTemplate } from "./templating";
 // // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const bcrypt = require("bcrypt");
 // const noDb = !existsSync("src/app.db");
-// const db = new sqlite3.Database("src/app.db");
 
-// db.serialize(() => {
-//   // create secrets table
-//   db.run(
-//     "CREATE TABLE IF NOT EXISTS secrets (name TEXT, keyHash TEXT, ivHash TEXT)"
-//   );
+// db.prepare(
+//   `CREATE TABLE IF NOT EXISTS secrets (
+//     displayName  TEXT PRIMARY KEY,
+//     createdOn TEXT NOT NULL,
+//     algorithm  TEXT NOT NULL,
+//     keyHash  TEXT NOT NULL,
+//     ivHash  TEXT NOT NULL,
+//     filePath TEXT)`
 
-//   // db.each(
-//   //   "SELECT rowid AS id, name, keyHash, ivHash FROM secrets",
-//   //   (err, row) => {
-//   //     console.log(row.id + ": " + row.info);
-//   //   }
-//   // );
-// });
+// ).run();
+
+// db.prepare(
+//     `INSERT INTO secrets 
+//      (displayName, createdOn, algorithm, key, iv, filePath) 
+//      (@displayName, @createdOn, @algorithm, @key, @iv, @filePath)`
+//   )
+//   .run('LMS PROD backup','2022-02-02 10:50','aes-256-cbc','6516514459854984984984','56165151451', 'C:\\uhguyg\\uyg');
+
+//   const secret= db.prepare('SELECT displayName, createdOn,algorithm, keyHash, ivHash, filePath FROM secrets').get();
+
+//   console.log(secret);
 
 // db.close();
 
