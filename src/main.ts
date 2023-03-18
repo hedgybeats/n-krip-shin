@@ -1,107 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { app, BrowserWindow, ipcMain } from "electron";
-import { join } from "path";
-import {
-  handleEncryptFile,
-  handleDecryptFile,
-  getAvailableCiphers,
-  cipherRequiresIv,
-} from "./encryption";
-import { shell } from "electron";
-import { compileHandlebarsTemplate } from "./templating";
-import * as Database from"better-sqlite3";
-const db = new Database("src/nkript.db");
-db.pragma("journal_mode = WAL");
-
-// let key = "SteamyAvoAndBakedBroccoliIsGood!";
-
-// key = createHash("sha256").update(key).digest("base64").substring(0, 33);
-// console.log(key);
-
-// const appDir = dirname(require.main.filename);
-
-// // eslint-disable-next-line @typescript-eslint/no-var-requires
-// const bcrypt = require("bcrypt");
-// const noDb = !existsSync("src/app.db");
-
-// db.prepare(
-//   `CREATE TABLE IF NOT EXISTS secrets (
-//     displayName  TEXT PRIMARY KEY,
-//     createdOn TEXT NOT NULL,
-//     algorithm  TEXT NOT NULL,
-//     keyHash  TEXT NOT NULL,
-//     ivHash  TEXT NOT NULL,
-//     filePath TEXT)`
-
-// ).run();
-
-// db.prepare(
-//     `INSERT INTO secrets 
-//      (displayName, createdOn, algorithm, key, iv, filePath) 
-//      (@displayName, @createdOn, @algorithm, @key, @iv, @filePath)`
-//   )
-//   .run('LMS PROD backup','2022-02-02 10:50','aes-256-cbc','6516514459854984984984','56165151451', 'C:\\uhguyg\\uyg');
-
-//   const secret= db.prepare('SELECT displayName, createdOn,algorithm, keyHash, ivHash, filePath FROM secrets').get();
-
-//   console.log(secret);
-
-// db.close();
-
-// if (noDb) {
-//   console.log("Encrypting database");
-//   encryptFileStream(
-//     "aes-256-cbc",
-//     join(appDir, "src/app.db"),
-//     undefined,
-//     undefined,
-//     true
-//   );
-// }
-
-// setTimeout(() => {
-//   // decryptFileStream(
-//   //   "aes-256-cbc",
-//   //   join(appDir, "src/app.db"),
-//   //   undefined,
-//   //   undefined,
-//   //   true
-//   // );
-
-//     db.each(
-//     "SELECT rowid AS id, name, keyHash, ivHash FROM secrets",
-//     (err, row) => {
-//       console.log(row.id + ": " + row.info);
-//     }
-//   );
-// }, 10000);
-
-// const bcryptHash = async (password: string, saltRounds = 10) =>
-//   new Promise((resolve, reject) => {
-//     bcrypt.hash(password, saltRounds, function (err: unknown, hash: string) {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(hash);
-//       }
-//     });
-//   });
-
-// const addSecretToDb = async (
-//   secretName: string,
-//   key: string,
-//   hash: string,
-//   secretPassword: string
-// ) => {
-//   const keyHash = await bcryptHash(secretPassword);
-
-//   const stmt = db.prepare("INSERT INTO secrets VALUES (?, ?, ?)");
-//   stmt.run(secretName, secretPassword);
-//   stmt.finalize();
-// };
-
+const DEFAULT_MASTER_PASSWORD = 'SteamyAvoAndBakedBroccoliIsGood';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { join } from 'path';
+import { NKriptRepo } from './data/repo';
+import { cipherRequiresIv, getAvailableCiphers, handleDecryptFile, handleEncryptFile } from './encryption';
+import { compileHandlebarsTemplate } from './templating';
 // required to stop app opening up twice when installing via squirel
-if (require("electron-squirrel-startup")) app.quit();
+if (require('electron-squirrel-startup')) app.quit();
+
+const repo = new NKriptRepo(DEFAULT_MASTER_PASSWORD);
 
 function createWindow() {
   // Create the browser window.
@@ -109,14 +16,14 @@ function createWindow() {
     width: 900,
     height: 700,
     webPreferences: {
-      preload: join(__dirname, "preload.js"),
+      preload: join(__dirname, 'preload.js'),
     },
-    icon: "src/assets/icons/icon.ico",
+    icon: 'src/assets/icons/icon.ico',
     autoHideMenuBar: true,
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(join(__dirname, "../index.html"));
+  mainWindow.loadFile(join(__dirname, '../index.html'));
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 }
@@ -125,20 +32,11 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  ipcMain.handle("compileHandlebarsTemplate", (_, args) =>
-    compileHandlebarsTemplate(args[0], args[1])
-  );
-  ipcMain.handle("decryptFile", handleDecryptFile);
-  ipcMain.handle("encryptFile", handleEncryptFile);
-  ipcMain.handle("showItemInFolder", (_, args) =>
-    shell.showItemInFolder(args[0])
-  );
-  ipcMain.handle("getAvailableCiphers", () => getAvailableCiphers());
-  ipcMain.handle("cipherRequiresIv", (_, args) => cipherRequiresIv(args[0]));
+  handleIpcEvents();
 
   createWindow();
 
-  app.on("activate", function () {
+  app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -148,11 +46,62 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+
+function handleIpcEvents() {
+  ipcMain.handle('compileHandlebarsTemplate', (_, args) => compileHandlebarsTemplate(args[0], args[1]));
+  ipcMain.handle('decryptFile', handleDecryptFile);
+  ipcMain.handle('encryptFile', handleEncryptFile);
+  ipcMain.handle('showItemInFolder', (_, args) => shell.showItemInFolder(args[0]));
+  ipcMain.handle('getAvailableCiphers', () => getAvailableCiphers());
+  ipcMain.handle('cipherRequiresIv', (_, args) => cipherRequiresIv(args[0]));
+  ipcMain.handle('loginToKeyVault', (_, args) => {
+    try {
+      repo.unlock(args[0]);
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  });
+  ipcMain.handle('logoutOfKeyVault', () => {
+    try {
+      repo.lock();
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  });
+  ipcMain.handle('getAllSecrets', (_, args) => {
+    try {
+      return repo.getSecrets(args[0]);
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+  });
+  ipcMain.handle('getSecret', (_, args) => {
+    try {
+      return repo.getSecret(args[0], args[1]);
+    } catch (err) {
+      console.log(err);
+      return undefined;
+    }
+  });
+  ipcMain.handle('deleteSecret', (_, args) => {
+    try {
+      repo.deleteSecret(args[0]);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+  });
+}
 
 //TODO Allow for a folder to be encrypted as a feature
 //TODO Investigate progress bar for large files

@@ -15,6 +15,7 @@
   --dark-blue: #064856;
   --dark-yellow: #705709;
   --dark-red: #82232c;
+  --light-red: #dc3545;
 }
 
 body.fancy-scrollbar::-webkit-scrollbar {
@@ -49,23 +50,18 @@ body.fancy-scrollbar::-webkit-scrollbar-thumb {
 } */
 
 #collapseSecretVault {
-  background-image: linear-gradient(
-    to bottom,
-    #303236,
-    #2c2f33,
-    #282b2f,
-    #25282c,
-    #212529
-  );
+  background-image: linear-gradient(to bottom, #303236, #2c2f33, #282b2f, #25282c, #212529);
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto;
   padding: 1rem 1.5rem 0rem 1.5rem;
+  margin-right: 5rem !important;
+  margin-left: 5rem !important;
 }
+
 .secret.grid-item {
-  background-color: var(--bg-very-dark);
   border: 1px solid rgba(0, 0, 0, 0.8);
   border-radius: 0.5rem;
   padding: 0.75rem;
@@ -133,7 +129,7 @@ body.fancy-scrollbar::-webkit-scrollbar-thumb {
 }
 
 .error {
-  color: #94232c;
+  color: #dc3545;
   text-align: center;
 }
 
@@ -160,6 +156,20 @@ input.green-checkbox:checked,
 input.green-checkbox:hover,
 input.green-checkbox:focus {
   border-color: #137145 !important;
+}
+
+button.dropdown-item:active{
+  background-color: var(--bg-dark) !important;
+}
+
+button.dropdown-item{
+  padding: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.btn-close.btn-close-white{
+  border-color: red !important;
+  padding: 0.3rem;
+  margin: 0.5rem;
 }
 
 button.un-style {
@@ -230,7 +240,7 @@ a {
 }
 .loader::after,
 .loader::before {
-  content: "";
+  content: '';
   box-sizing: border-box;
   position: absolute;
   left: 0;
@@ -283,6 +293,18 @@ div.alert.alert-danger {
   border-color: #842029 !important;
 }
 
+button.btn-danger {
+  background-color: #2c0b0e !important;
+  color: #fff !important;
+  border-color: #842029 !important;
+}
+
+div.alert.alert-warning {
+  background-color: #332701 !important;
+  color: #ffda6a !important;
+  border-color: #664d03 !important;
+}
+
 .file-name {
   font-size: 14px;
   font-weight: 500;
@@ -311,8 +333,19 @@ div.alert.alert-danger {
   color: #198754 !important;
 }
 
+.red-hover:hover {
+  color: var(--light-red) !important;
+}
+
+
 .scale-on-hover:hover {
-  scale: 1.1;
+  scale: 1.1 !important;
+  transition: scale 0.15s ease-in !important;
+}
+
+.rotate-on-hover:hover{
+  rotate: 20deg;
+  transition: rotate 0.15s ease-in;
 }
 
 .w-33 {
@@ -321,14 +354,6 @@ div.alert.alert-danger {
 
 .pointer-none {
   pointer-events: none !important;
-}
-
-.bi-eye {
-  color: var(--dark-blue);
-}
-
-.bi-eye-slash {
-  color: var(--dark-red);
 }
 
 .collapsing {
