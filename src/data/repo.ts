@@ -197,7 +197,7 @@ export class NKriptRepo {
   }
 
   private connectToDatabase() {
-    return new SqliteDatabase('src/data/nkript.db');
+    return new SqliteDatabase('./nkript.db', { fileMustExist: false });
   }
 
   private hashPassword = (password: string, rounds = 14) => hashSync(password, rounds);
