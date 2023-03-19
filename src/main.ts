@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const DEFAULT_MASTER_PASSWORD = 'SteamyAvoAndBakedBroccoliIsGood';
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'path';
 import { NKriptRepo } from './data/repo';
@@ -8,7 +7,7 @@ import { compileHandlebarsTemplate } from './templating';
 // required to stop app opening up twice when installing via squirel
 if (require('electron-squirrel-startup')) app.quit();
 
-const repo = new NKriptRepo(DEFAULT_MASTER_PASSWORD);
+const repo = new NKriptRepo();
 
 function createWindow() {
   // Create the browser window.
@@ -61,7 +60,7 @@ function handleIpcEvents() {
   ipcMain.handle('cipherRequiresIv', (_, args) => cipherRequiresIv(args[0]));
   ipcMain.handle('loginToKeyVault', (_, args) => {
     try {
-      repo.unlock(args[0]);
+      repo.authenticate(args[0]);
       return true;
     } catch (err) {
       console.log(err);

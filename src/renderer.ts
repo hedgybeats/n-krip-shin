@@ -41,6 +41,7 @@ interface Secret {
 }
 
 interface MasterPassword {
+  id: number;
   passwordHash: string;
   updatedOn: string;
   hint?: string;

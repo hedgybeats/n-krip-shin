@@ -26,6 +26,8 @@ const getIncrementalFileName = (filePath: string, attempt: number) => {
   return arr.join('.') + `(${attempt})` + `.${ext}`;
 };
 
+export const randomHexKey = (bytes = 32): string => randomBytes(bytes).toString('hex');
+
 export const getAvailableCiphers = (): string[] => getCiphers();
 
 export const cipherRequiresIv = (cipher: string): boolean => {
