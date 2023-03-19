@@ -12,7 +12,7 @@ const repo = new NKriptRepo();
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
+    width: 1000,
     height: 700,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -31,6 +31,7 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  repo.removeSessionData();
   handleIpcEvents();
 
   createWindow();
@@ -47,6 +48,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    repo.endSession();
     app.quit();
   }
 });
@@ -58,67 +60,15 @@ function handleIpcEvents() {
   ipcMain.handle('showItemInFolder', (_, args) => shell.showItemInFolder(args[0]));
   ipcMain.handle('getAvailableCiphers', () => getAvailableCiphers());
   ipcMain.handle('cipherRequiresIv', (_, args) => cipherRequiresIv(args[0]));
-  ipcMain.handle('loginToKeyVault', (_, args) => {
-    try {
-      repo.authenticate(args[0]);
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  });
-  ipcMain.handle('logoutOfKeyVault', () => {
-    try {
-      repo.lock();
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  });
-  ipcMain.handle('getAllSecrets', (_, args) => {
-    try {
-      return repo.getSecrets(args[0]);
-    } catch (err) {
-      console.log(err);
-      return [];
-    }
-  });
-  ipcMain.handle('getSecret', (_, args) => {
-    try {
-      return repo.getSecret(args[0], args[1]);
-    } catch (err) {
-      console.log(err);
-      return undefined;
-    }
-  });
-  ipcMain.handle('deleteSecret', (_, args) => {
-    try {
-      repo.deleteSecret(args[0]);
-    } catch (err) {
-      console.log(err);
-      return;
-    }
-  });
+  ipcMain.handle('startKeyVaultSession', (_, args) => repo.startSession(args[0]));
+  ipcMain.handle('endKeyVaulSession', () => repo.endSession());
+  ipcMain.handle('getSecrets', (_, args) => repo.getSecrets(args[0]));
+  ipcMain.handle('getSecret', (_, args) => repo.getSecret(args[0], args[1]));
+  ipcMain.handle('deleteSecret', (_, args) => repo.deleteSecret(args[0], args[1]));
+  ipcMain.handle('addSecret', (_, args) => repo.addSecret(args[0], args[1], args[2], args[3], args[4], args[5], args[6]));
 }
 
 //TODO Allow for a folder to be encrypted as a feature
 //TODO Investigate progress bar for large files
 //TODO Secret vault with a master password
 //TODO save to vault shortcut
-// NOT POSSIBLE TO RESTORE IF MASTER PASSWORD LOST!!!!!!!!!!
-// i want to allow user to select a master password if the app is run for thge first time
-// i want the app to then encrypt the secret db using that password
-// i will store a bcrypthash of the master password in the masterpassword table of a separate un-encrypted database
-
-// everytime the user needs  to access the db,
-// we will ask for the master password from the uncencrypted table,
-// then need to check if supplied password is match. if not show error.
-
-// if match, decrypt secret db decrypted, then read/write data and encrypt again when done
-// maybe allow for rescure email on creation so that if master password is lost then an email can get sent to the email
-
-//  const userKey = window.prompt(
-// "Enter a master password for storing secrets. (max 32 characters)",
-//  "SteamyAvoAndBakedBroccoliIsGood!"
-//);

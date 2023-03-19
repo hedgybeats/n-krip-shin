@@ -13,13 +13,15 @@ contextBridge.exposeInMainWorld('nKriptApi', <NKriptApi>{
 
   compileHandlebarsTemplate: <TData>(html: string, data: TData) => ipcRenderer.invoke('compileHandlebarsTemplate', [html, data]),
 
-  loginToKeyVault: (masterPassword: string) => ipcRenderer.invoke('loginToKeyVault', [masterPassword]),
+  startKeyVaultSession: (masterPassword: string) => ipcRenderer.invoke('startKeyVaultSession', [masterPassword]),
 
-  logoutOfKeyVault: () => ipcRenderer.invoke('logoutOfKeyVault'),
+  endKeyVaulSession: () => ipcRenderer.invoke('endKeyVaulSession'),
 
-  getAllSecrets: (decrypt = false) => ipcRenderer.invoke('getAllSecrets', [decrypt]),
+  getSecrets: (accessToken: string) => ipcRenderer.invoke('getSecrets', [accessToken]),
 
-  getSecret: (secretId: number, decrypt = false) => ipcRenderer.invoke('getSecret', [secretId, decrypt]),
+  getSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke('getSecret', [secretId, accessToken]),
 
-  deleteSecret: (secretId: number) => ipcRenderer.invoke('deleteSecret', [secretId])
+  deleteSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke('deleteSecret', [secretId, accessToken]),
+
+  addSecret: (masterPassword: string, accessToken: string, displayName: string, algorithm: string, key: string, iv: string, filePath: string = undefined) => ipcRenderer.invoke('addSecret', [masterPassword, accessToken, displayName, algorithm, key, iv, filePath])
 });

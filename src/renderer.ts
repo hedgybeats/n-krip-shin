@@ -11,11 +11,12 @@ interface NKriptApi {
   getAvailableCiphers: () => Promise<string[]>;
   cipherRequiresIv: (cipher: string) => Promise<boolean>;
   compileHandlebarsTemplate: <TData>(html: string, data: TData) => Promise<string>;
-  loginToKeyVault: (masterPassword: string) => Promise<boolean>;
-  logoutOfKeyVault: () => Promise<boolean>;
-  getAllSecrets: (decrypt?: boolean) => Promise<Secret[]>;
-  getSecret: (secretId: number, decrypt?: boolean) => Promise<Secret>;
-  deleteSecret: (secretId: number) => Promise<void>;
+  startKeyVaultSession: (masterPassword: string) => Promise<string>;
+  endKeyVaulSession: () => Promise<void>;
+  getSecrets: (accessToken: string) => Promise<SecretDto[]>;
+  getSecret: (secretId: number, accessToken: string) => Promise<SecretDto>;
+  deleteSecret: (secretId: number, accessToken: string) => Promise<void>;
+  addSecret: (masterPassword: string, accessToken: string, displayName: string, algorithm: string, key: string, iv: string, filePath?: string) => Promise<void>;
 }
 
 interface Encryptionresult {
@@ -35,8 +36,20 @@ interface Secret {
   displayName: string;
   createdOn: string;
   algorithm: string;
-  keyHash: string;
-  ivHash: string;
+  keyMasterHash: string;
+  ivMasterHash: string;
+  keySessionHash: string;
+  ivSessionHash: string;
+  filePath?: string;
+}
+
+interface SecretDto {
+  id: number;
+  displayName: string;
+  createdOn: string;
+  algorithm: string;
+  key: string;
+  iv: string;
   filePath?: string;
 }
 
@@ -49,7 +62,7 @@ interface MasterPassword {
 }
 
 interface SecretTemplate {
-  secrets: Secret[];
+  secrets: SecretDto[];
 }
 
 const vaultTemplate = `<div id="key-vault-item-grid" class="grid-container mx-3">
@@ -82,11 +95,11 @@ const vaultTemplate = `<div id="key-vault-item-grid" class="grid-container mx-3"
                                 </div>
                                 <div class="card-body">
                                   <div>
-                                    <span class="me-2">Key:</span><span class="secret-key">{{keyHash}}</span>
+                                    <span class="me-2">Key:</span><span class="secret-key">{{key}}</span>
                                   </div>
-                                     {{#if ivHash}}
+                                     {{#if iv}}
                                   <div>
-                                    <span class="me-2">IV:</span><span class="secret-iv">{{ivHash}}</span>
+                                    <span class="me-2">IV:</span><span class="secret-iv">{{iv}}</span>
                                   </div>
                                       {{/if}}
                                       {{#if filePath}}
@@ -406,6 +419,8 @@ class App {
 
   private elements = this.getElements();
 
+  private accessToken: string | null = null;
+
   constructor(private api: NKriptApi) { }
 
   public async init() {
@@ -551,21 +566,21 @@ class App {
 
   private async renderKeyVault(): Promise<void> {
     this.vaultBody.innerHTML = await this.api.compileHandlebarsTemplate<SecretTemplate>(vaultTemplate, {
-      secrets: await this.api.getAllSecrets(),
+      secrets: await this.api.getSecrets(this.accessToken),
     });
 
 
     this.showSecretButtons.forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const btn = e.target as HTMLElement;
-        const secret = await this.api.getSecret(parseInt(btn.getAttribute('data-secret-id'), 10), true);
+        const secret = await this.api.getSecret(parseInt(btn.getAttribute('data-secret-id'), 10), this.accessToken);
 
         const keyField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-key') as HTMLElement;
         const ivField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-iv') as HTMLElement;
         const hideSecretsBtn = btn.parentElement.parentElement.parentElement.querySelector('button.hide-secret-btn') as HTMLElement;
 
-        keyField.innerText = secret.keyHash;
-        ivField.innerText = secret.ivHash;
+        keyField.innerText = secret.key;
+        ivField.innerText = secret.iv;
         btn.classList.add('d-none');
         hideSecretsBtn.classList.remove('d-none');
       });
@@ -589,7 +604,7 @@ class App {
     this.deleteSecretButtons.forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const btn = e.target as HTMLElement;
-        await this.api.deleteSecret(parseInt(btn.getAttribute('data-secret-id'), 10));
+        await this.api.deleteSecret(parseInt(btn.getAttribute('data-secret-id'), 10), this.accessToken);
         const griContainer = btn.parentElement.parentElement.parentElement.parentElement;
         griContainer.removeChild(btn.parentElement.parentElement.parentElement);
       });
@@ -605,12 +620,14 @@ class App {
       return;
     }
 
-    const success = await this.api.loginToKeyVault(password);
-
-    if (!success) {
-      this.keyVaultPasswordFcError.innerText = 'Invalid password';
+    try {
+      this.accessToken = await this.api.startKeyVaultSession(password);
+    } catch (err) {
+      this.keyVaultPasswordFcError.innerText = err?.message ?? 'An unknown error has occured.';
       return;
     }
+
+    await this.api.addSecret('SteamyAvoAndBakedBroccoliIsGood', this.accessToken, 'My Dummy Secret 1', 'aes-256-cbc', '65465465465454654654564', '1122112211221');
 
     this.keyVaultLoginContainer.classList.add('d-none');
     this.keyVaultPasswordFc.value = '';
@@ -619,7 +636,8 @@ class App {
   }
 
   private async logoutOfKeyVault() {
-    await this.api.logoutOfKeyVault();
+    await this.api.endKeyVaulSession();
+    this.accessToken = null;
 
     this.keyVaultLoginContainer.classList.remove('d-none');
     this.vaultBody.innerHTML = '';
