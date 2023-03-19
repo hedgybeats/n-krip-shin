@@ -1,23 +1,37 @@
 import { compareSync, hashSync } from 'bcryptjs';
 import * as SqliteDatabase from 'better-sqlite3';
 import { safeStorage } from 'electron';
+import * as os from 'os';
 import * as jwt from 'jsonwebtoken';
 import * as uuid from 'uuid';
-import { decryptPlainText, encryptPlainText, randomHexKey } from './../encryption';
+import { decryptPlainText, encryptPlainText, randomHexKey } from './encryption';
 const DEFAULT_MASTER_PASSWORD = 'SteamyAvoAndBakedBroccoliIsGood';
 const SELECT_ALL_SECRETS_SQL = 'SELECT rowId as id, displayName, createdOn, algorithm, keyMasterHash, keySessionHash, ivMasterHash, ivSessionHash, filePath FROM secrets';
 
 export class NKriptRepo {
   private accessTokenSigningKey: Buffer | null = null;
-  private sessionKeySubstringStart: number | null = null;
-  private sessionIvSubstringStart: number | null = null;
+  private accessTokenRandomIssuer: Buffer | null = null;
+
+  private _sessionKeySubstringSegments: Buffer | null = null;
+  private get sessionKeySubstringSegments(): string[] {
+    return safeStorage.decryptString(this._sessionKeySubstringSegments).split(',');
+  }
+  private set sessionKeySubstringSegments(segments: string[]) {
+    this._sessionKeySubstringSegments = safeStorage.encryptString(segments.join(','));
+  }
+
+  private _sessionIvSubstringSegments: Buffer | null = null;
+  private get sessionIvSubstringSegments(): string[] {
+    return safeStorage.decryptString(this._sessionIvSubstringSegments).split(',');
+  }
+  private set sessionIvSubstringSegments(segments: string[]) {
+    this._sessionIvSubstringSegments = safeStorage.encryptString(segments.join(','));
+  }
+
   private get utcNow() {
     return new Date().toUTCString();
   }
 
-  /**
-   * Scaffold the MasterPassword and Secrets tables if they do not exist. Add the default master password if it doesnt exist.
-   */
   constructor() {
     const db = new SqliteDatabase('./nkript.db');
 
@@ -63,7 +77,6 @@ export class NKriptRepo {
     return this;
   }
 
-
   public startSession(masterPassword: string): string {
     if (!this.isValidMasterPassword(masterPassword)) throw new Error('Invalid master password.');
 
@@ -71,13 +84,17 @@ export class NKriptRepo {
 
     const accessToken = this.generateAccessToken();
 
-    // set to random number between 0 and 100
-    this.sessionKeySubstringStart = Math.floor(Math.random() * 101);
-    console.log(this.sessionKeySubstringStart);
+    this.sessionKeySubstringSegments = [
+      this.randomNumberFromInterval(0, 33).toString(),
+      this.randomNumberFromInterval(34, 67).toString(),
+      this.randomNumberFromInterval(68, 100).toString()
+    ];
 
-    // set to random number between 0 and 100
-    this.sessionIvSubstringStart = Math.floor(Math.random() * 101);
-    console.log(this.sessionIvSubstringStart);
+    this.sessionIvSubstringSegments = [
+      this.randomNumberFromInterval(0, 33).toString(),
+      this.randomNumberFromInterval(34, 67).toString(),
+      this.randomNumberFromInterval(68, 100).toString()
+    ];
 
     const db = this.connectToDatabase(accessToken);
 
@@ -87,10 +104,12 @@ export class NKriptRepo {
         .run(
           {
             id: secret.id,
-            keySessionHash: encryptPlainText(decryptPlainText(secret.keyMasterHash, masterPassword), accessToken.substring(this.sessionKeySubstringStart, this.sessionKeySubstringStart + 32)),
-            ivSessionHash: encryptPlainText(decryptPlainText(secret.ivMasterHash, masterPassword), accessToken.substring(this.sessionIvSubstringStart, this.sessionIvSubstringStart + 32))
+            keySessionHash: encryptPlainText(decryptPlainText(secret.keyMasterHash, masterPassword), this.stripPartsFromAccessToken(accessToken, this.sessionKeySubstringSegments[0], this.sessionKeySubstringSegments[1], this.sessionKeySubstringSegments[2])),
+            ivSessionHash: encryptPlainText(decryptPlainText(secret.ivMasterHash, masterPassword), this.stripPartsFromAccessToken(accessToken, this.sessionIvSubstringSegments[0], this.sessionIvSubstringSegments[1], this.sessionIvSubstringSegments[2]))
           });
     });
+
+    console.log(`Hashed ${allSecrets.length} secrets for the current session. The current session token expires in 1 minutes.`);
 
     return accessToken;
   }
@@ -98,14 +117,15 @@ export class NKriptRepo {
   public endSession() {
     this.removeSessionData();
     this.accessTokenSigningKey = null;
-    this.sessionKeySubstringStart = null;
-    this.sessionIvSubstringStart = null;
+    this.accessTokenRandomIssuer = null;
+    this._sessionKeySubstringSegments = null;
+    this._sessionIvSubstringSegments = null;
   }
 
   public removeSessionData() {
     const db = new SqliteDatabase('./nkript.db');
 
-    const allSecrets = db.prepare(SELECT_ALL_SECRETS_SQL).all() as Secret[];
+    const allSecrets = db.prepare(SELECT_ALL_SECRETS_SQL + ' WHERE keySessionHash IS NOT NULL OR ivSessionHash IS NOT NULL').all() as Secret[];
     allSecrets.forEach(secret => {
       db.prepare('UPDATE secrets SET keySessionHash = NULL, ivSessionHash = NULL WHERE rowId = @id')
         .run(
@@ -149,8 +169,8 @@ export class NKriptRepo {
           algorithm,
           keyMasterHash: encryptPlainText(key, masterPassword),
           ivMasterHash: encryptPlainText(iv, masterPassword),
-          keySessionHash: encryptPlainText(key, accessToken.substring(this.sessionKeySubstringStart, this.sessionKeySubstringStart + 32)),
-          ivSessionHash: encryptPlainText(iv, accessToken.substring(this.sessionIvSubstringStart, this.sessionIvSubstringStart + 32)),
+          keySessionHash: encryptPlainText(key, this.stripPartsFromAccessToken(accessToken, this.sessionKeySubstringSegments[0], this.sessionKeySubstringSegments[1], this.sessionKeySubstringSegments[2])),
+          ivSessionHash: encryptPlainText(iv, this.stripPartsFromAccessToken(accessToken, this.sessionIvSubstringSegments[0], this.sessionIvSubstringSegments[1], this.sessionIvSubstringSegments[2])),
           filePath
         });
 
@@ -170,16 +190,12 @@ export class NKriptRepo {
       createdOn: secret.createdOn,
       displayName: secret.displayName,
       algorithm: secret.algorithm,
-      key: decryptPlainText(secret.keySessionHash, accessToken.substring(this.sessionKeySubstringStart, this.sessionKeySubstringStart + 32)),
-      iv: decryptPlainText(secret.ivSessionHash, accessToken.substring(this.sessionIvSubstringStart, this.sessionIvSubstringStart + 32)),
+      key: decryptPlainText(secret.keySessionHash, this.stripPartsFromAccessToken(accessToken, this.sessionKeySubstringSegments[0], this.sessionKeySubstringSegments[1], this.sessionKeySubstringSegments[2])),
+      iv: decryptPlainText(secret.ivSessionHash, this.stripPartsFromAccessToken(accessToken, this.sessionIvSubstringSegments[0], this.sessionIvSubstringSegments[1], this.sessionIvSubstringSegments[2])),
       filePath: secret.filePath
     };
   }
 
-  /**
- * Delete a secret by its id.
- * @param id The id of the secret to delete.
- */
   public deleteSecret(id: number, accessToken: string): void {
     const db = this.connectToDatabase(accessToken);
 
@@ -188,11 +204,6 @@ export class NKriptRepo {
     db.close();
   }
 
-  /**
-   * Gets all the secrets stored in the databse.
-   * @param decrypt Whether or not to decrypt the encrypted values of this secrets. (Defaults to false).
-   * @returns Secret[]
-   */
   public getSecrets(accessToken: string): SecretDto[] {
     const db = this.connectToDatabase(accessToken);
 
@@ -214,9 +225,6 @@ export class NKriptRepo {
     });
   }
 
-  /**
-   * @returns The master password for the application.
-   */
   private getMasterPassword(): MasterPassword | undefined {
     const db = new SqliteDatabase('./nkript.db');
 
@@ -227,11 +235,6 @@ export class NKriptRepo {
     return password;
   }
 
-  /**
-   * Compares the provided password with the stored master password and verify if they match.
-   * @param password The password to compare against the master password.
-   * @returns True if the password matches, otherwise false.
-   */
   private isValidMasterPassword(password: string): boolean {
     const masterPassword = this.getMasterPassword();
     if (masterPassword === undefined) {
@@ -241,24 +244,23 @@ export class NKriptRepo {
     return compareSync(password, masterPassword.passwordHash);
   }
 
-  /**
-   * Create a jwt token based of the id of the master password that expires in one minute. 
-   * The token is signed by a random signing key each time.
-   * @returns Jason Web Token
-   */
   private generateAccessToken() {
     this.accessTokenSigningKey = safeStorage.encryptString(randomHexKey());
+    this.accessTokenRandomIssuer = safeStorage.encryptString(randomHexKey(16));
 
     return jwt.sign({
       time: this.utcNow,
       masterPasswordId: this.getMasterPassword().id
-    }, safeStorage.decryptString(this.accessTokenSigningKey), { expiresIn: 600000 });
+    }, safeStorage.decryptString(this.accessTokenSigningKey), { expiresIn: '1m', issuer: safeStorage.decryptString(this.accessTokenRandomIssuer) });
   }
 
   private validateAccessToken(accessToken: string) {
     if (this.accessTokenSigningKey === null) throw new Error('A session must first be started via the authenticate function by providing the master password.');
 
-    const payload = jwt.verify(accessToken, safeStorage.decryptString(this.accessTokenSigningKey));
+    const payload = jwt.verify(accessToken, safeStorage.decryptString(this.accessTokenSigningKey), { issuer: safeStorage.decryptString(this.accessTokenRandomIssuer) });
+
+    console.log(payload);
+
     if (!payload || (payload as any).masterPasswordId !== this.getMasterPassword().id) throw new Error("Invalid access token");
   }
 
@@ -267,5 +269,13 @@ export class NKriptRepo {
     return new SqliteDatabase('./nkript.db');
   }
 
+  private stripPartsFromAccessToken(accessToken: string, initial: string, middle: string, final: string) {
+    return accessToken.substring(parseInt(initial, 10), parseInt(initial, 10) + 10) +
+      accessToken.substring(parseInt(middle, 10), parseInt(middle, 10) + 10) +
+      accessToken.substring(parseInt(final, 10), parseInt(final, 10) + 12);
+  }
+
   private hashPassword = (password: string, rounds = 14) => hashSync(password, rounds);
+
+  private randomNumberFromInterval = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 }

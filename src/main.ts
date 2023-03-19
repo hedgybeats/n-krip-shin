@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'path';
-import { NKriptRepo } from './data/repo';
+import { NKriptRepo } from './repo';
 import { cipherRequiresIv, getAvailableCiphers, handleDecryptFile, handleEncryptFile } from './encryption';
 import { compileHandlebarsTemplate } from './templating';
 // required to stop app opening up twice when installing via squirel
