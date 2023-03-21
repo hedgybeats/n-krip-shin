@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>N-KRIPT</title>
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self' data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net"
@@ -447,9 +446,9 @@
         <div class="collapse" id="collapseSecretVault">
           <div class="shadow text-light mt-4">
             <div id="key-vault-header" class="fs-4 mb-3">
-              <div class="d-flex justify-content-end pe-4 mt-1">
+              <div class="d-flex justify-content-end pe-4">
                 <div class="dropdown">
-                  <button class="un-style green-hover scale-on-hover" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button class="un-style mt-1 green-hover scale-on-hover" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="1.5rem"
@@ -560,10 +559,60 @@
                     />
                   </svg>
                 </div>
+                <h6 id="welcomeText" class="text-center text-light mt-2">Weclome To</h6>
                 <h4 class="text-center text-light">Key Vault</h4>
               </div>
             </div>
-            <div id="key-vault-login-container">
+            <div id="key-vault-first-password-container" class="pt-3">
+              <!-- key vault password -->
+              <div class="w-100 d-flex justify-content-center">
+                <div class="mb-3 w-50">
+                  <label for="keyVaultGetStartedPasswordFc" class="form-label text-light">Set Your Master Password</label>
+                  <input
+                    required
+                    type="password"
+                    class="form-control form-control-sm bg-dark text-light"
+                    spellcheck="false"
+                    id="keyVaultGetStartedPasswordFc"
+                    placeholder="Enter your master password (20 - 32 characters)"
+                  />
+                </div>
+              </div>
+              <div id="keyVaultFirstPasswordFc-error" class="error mb-2"></div>
+              <!-- get started with vault -->
+              <div class="d-flex justify-content-center">
+                <button id="key-vault-get-started-btn" class="btn btn-success mb-4">
+                  <div class="d-flex align-items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1rem"
+                      height="1rem"
+                      fill="currentColor"
+                      class="bi bi-rocket text-light"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M8 8c.828 0 1.5-.895 1.5-2S8.828 4 8 4s-1.5.895-1.5 2S7.172 8 8 8Z" />
+                      <path
+                        d="M11.953 8.81c-.195-3.388-.968-5.507-1.777-6.819C9.707 1.233 9.23.751 8.857.454a3.495 3.495 0 0 0-.463-.315A2.19 2.19 0 0 0 8.25.064.546.546 0 0 0 8 0a.549.549 0 0 0-.266.073 2.312 2.312 0 0 0-.142.08 3.67 3.67 0 0 0-.459.33c-.37.308-.844.803-1.31 1.57-.805 1.322-1.577 3.433-1.774 6.756l-1.497 1.826-.004.005A2.5 2.5 0 0 0 2 12.202V15.5a.5.5 0 0 0 .9.3l1.125-1.5c.166-.222.42-.4.752-.57.214-.108.414-.192.625-.281l.198-.084c.7.428 1.55.635 2.4.635.85 0 1.7-.207 2.4-.635.067.03.132.056.196.083.213.09.413.174.627.282.332.17.586.348.752.57l1.125 1.5a.5.5 0 0 0 .9-.3v-3.298a2.5 2.5 0 0 0-.548-1.562l-1.499-1.83ZM12 10.445v.055c0 .866-.284 1.585-.75 2.14.146.064.292.13.425.199.39.197.8.46 1.1.86L13 14v-1.798a1.5 1.5 0 0 0-.327-.935L12 10.445ZM4.75 12.64C4.284 12.085 4 11.366 4 10.5v-.054l-.673.82a1.5 1.5 0 0 0-.327.936V14l.225-.3c.3-.4.71-.664 1.1-.861.133-.068.279-.135.425-.199ZM8.009 1.073c.063.04.14.094.226.163.284.226.683.621 1.09 1.28C10.137 3.836 11 6.237 11 10.5c0 .858-.374 1.48-.943 1.893C9.517 12.786 8.781 13 8 13c-.781 0-1.517-.214-2.057-.607C5.373 11.979 5 11.358 5 10.5c0-4.182.86-6.586 1.677-7.928.409-.67.81-1.082 1.096-1.32.09-.076.17-.135.236-.18Z"
+                      />
+                      <path d="M9.479 14.361c-.48.093-.98.139-1.479.139-.5 0-.999-.046-1.479-.139L7.6 15.8a.5.5 0 0 0 .8 0l1.079-1.439Z" />
+                    </svg>
+                    <span class="ms-2 text-light">Get started</span>
+                  </div>
+                </button>
+              </div>
+              <!-- key vault warning -->
+              <div class="w-100 d-flex justify-content-center">
+                <div class="alert alert-warning alert-dismissible fade show mx-5 mb-3 w-50" role="alert">
+                  <div>Use the key vault at your own <strong>risk</strong>!</div>
+                  <div>If your master password is compromised, anyone can use it to access your key vault.</div>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- will show this if the user has a password already -->
+            <div id="key-vault-login-container" class="d-none pt-3">
               <!-- key vault password -->
               <div class="w-100 d-flex justify-content-center">
                 <div class="mb-3 w-50">
@@ -600,14 +649,6 @@
                   </div>
                 </button>
               </div>
-              <!-- key vault warning -->
-            </div>
-            <div class="w-100 d-flex justify-content-center">
-              <div class="alert alert-warning alert-dismissible fade show mx-5 mb-3 w-50" role="alert">
-                <div>Use the key vault at your own <strong>risk</strong>!</div>
-                <div>If your master password is compromised, anyone can use it to access your key vault.</div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
             </div>
             <div id="vault-body" class="pb-2"></div>
           </div>
@@ -617,7 +658,15 @@
         <div class="mt-3">
           <!-- trigger modals -->
           <div class="d-flex justify-content-between align-items-center mb-3 mx-4">
-            <button type="button" class="un-style cursor-pointer" data-bs-toggle="modal" data-bs-target="#settingsModal">
+            <button
+              type="button"
+              class="un-style cursor-pointer"
+              data-bs-toggle="modal"
+              data-bs-target="#settingsModal"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Tooltip on top"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1.25rem"
@@ -644,6 +693,9 @@
               aria-controls="collapseSecretVault"
             >
               <svg
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-title="Key Vault"
                 xmlns="http://www.w3.org/2000/svg"
                 width="1.5rem"
                 height="1.5rem"
@@ -773,19 +825,6 @@
                       placeholder="Enter your master password."
                     />
                   </div>
-                  <!-- <div class="mb-3 w-100">
-                      <label for="ivToAddFc" class="form-label text-light">IV</label>
-                      <input required type="password" class="form-control form-control-sm bg-dark text-light"
-                        spellcheck="false" id="ivToAddFc" placeholder="Enter an IV you would like to store." />
-                    </div> -->
-                  <!-- <div class="mb-3 w-100">
-                      <select id="select-algorithm-to-add"
-                      class="form-select form-select-sm bg-dark text-light cursor-pointer"
-                      aria-label=".form-select-sm example">
-                      <option selected>N/A</option>
-                      options to be inserted here
-                    </select>
-                    </div> -->
                   <div class="d-flex justify-content-end">
                     <button id="addVaultItemBtn" class="btn btn-sm btn-success mt-3">Add</button>
                   </div>
@@ -916,7 +955,7 @@
 
           <!-- help Modal -->
           <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
               <div class="modal-content bg-dark">
                 <div class="modal-header bg-dark">
                   <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
@@ -926,14 +965,11 @@
                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-dark text-light p-4">
-                  <p>
-                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                    is a simple desktop application that allows you to encrypt and decrypt files.
-                  </p>
+                  <p>The ultimate encryption desktop app that keeps your sensitive files away from prying eyes.</p>
                   <p>
                     With
-                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>, you can protect your sensitive data
-                    from prying eyes, whether you're moving it through cloud services or just storing it on your computer.
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>, you can safeguard your confidential
+                    data with just a few clicks, whether you're sharing it over the cloud or storing it on your computer.
                   </p>
                   <br />
                   <h5 class="mb-3 underline">Here's how it works:</h5>
@@ -957,8 +993,28 @@
                   <p class="mt-2">
                     By default,
                     <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                    uses the Advanced Encryption Standard (AES) algorithm to encrypt your files, which is a widely-used and trusted
-                    encryption standard.
+                    uses the trusted Advanced Encryption Standard (AES) algorithm to encrypt your files.
+                  </p>
+                  <h5 class="mb-3 underline">Key vault:</h5>
+                  <p>
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong> also includes a built in key vault. Say
+                    goodbye to the hassle of managing multiple encryption keys as you can now store all your keys and initialization vectors
+                    under one secure password.
+                  </p>
+                  <p>
+                    To get started, all you need to do is set a master password that's between 20 and 32 characters long. Once you've done
+                    that, you can easily add keys to the vault and view them whenever you need them, without having to remember multiple
+                    passwords.
+                  </p>
+                  <p>
+                    Rest assured that your data is in safe hands with N-KRIPT's vault. Every row of data stored in the vault is encrypted
+                    with the AES-256-CBC encryption algorithm, making it virtually impossible for anyone to access your files without the
+                    master password.
+                  </p>
+                  <p>
+                    N-KRIPT is designed with simplicity and security in mind. Whether you're a tech-savvy user or not, you'll find our app
+                    incredibly easy to use, yet incredibly powerful. Protect your data with N-KRIPT and experience the peace of mind that
+                    comes with knowing your files are safe and secure.
                   </p>
                   <div class="alert alert-success text-center py-1 px-3 mt-2 mb-3">
                     <small>

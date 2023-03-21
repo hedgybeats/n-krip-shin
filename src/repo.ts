@@ -4,7 +4,6 @@ import { safeStorage } from "electron";
 import * as jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { decryptPlainText, encryptPlainText, randomHexKey } from "./encryption";
-const DEFAULT_MASTER_PASSWORD = "SteamyAvoAndBakedBroccoliIsGood";
 const SELECT_ALL_SECRETS_SQL =
   "SELECT rowId as id, displayName, createdOn, algorithm, keyMasterHash, keySessionHash, ivMasterHash, ivSessionHash, filePath FROM secrets";
 
@@ -36,7 +35,7 @@ export class NKriptRepo {
   }
 
   private get newSqliteDb() {
-    return new SqliteDatabase("./src/assets/db/nkript.db");
+    return new SqliteDatabase("nkript.db");
   }
 
   private get isOngoingSession() {
@@ -59,20 +58,6 @@ export class NKriptRepo {
                   hint TEXT,
                   expiresOn TEXT)`
     ).run();
-
-    if (this.getMasterPassword() === undefined) {
-      db.prepare(
-        `INSERT INTO masterPassword 
-                (id, passwordHash, updatedOn, hint,  expiresOn) 
-                VALUES (@id, @passwordHash, @updatedOn, @hint, @expiresOn)`
-      ).run({
-        id: uuidv4(),
-        passwordHash: this.hashPassword(DEFAULT_MASTER_PASSWORD),
-        updatedOn: this.utcNow,
-        hint: null,
-        expiresOn: null,
-      });
-    }
 
     db.prepare(
       `CREATE TABLE IF NOT EXISTS secrets (
@@ -142,9 +127,7 @@ export class NKriptRepo {
     });
 
     console.log(
-      `Vault session started.
-      Decrypted and re-encrypted ${allSecrets.length} secrets for the current session. 
-      The current session token expires in 120 seconds.`
+      `Vault session started. Decrypted and re-encrypted ${allSecrets.length} secrets for the current session. The current session token expires in 120 seconds.`
     );
 
     return tokens;
@@ -220,9 +203,7 @@ export class NKriptRepo {
     });
 
     console.log(
-      `Vault session refreshed.\n
-       Decrypted and re-encrypted ${allSecrets.length} secrets for the new session.\n
-       The new session token expires in 120 seconds.`
+      `Vault session refreshed. Decrypted and re-encrypted ${allSecrets.length} secrets for the new session. The new session token expires in 120 seconds.`
     );
 
     return newTokens;
@@ -236,6 +217,30 @@ export class NKriptRepo {
     this._sessionKeySubstringSegments = null;
     this._sessionIvSubstringSegments = null;
     this.removeSessionData();
+  }
+
+  public setMasterPassword(password: string) {
+    if (this.hasSetMasterPassword) {
+      throw new Error("This method is reserved for setting the first master password");
+    }
+
+    const db = this.newSqliteDb;
+
+    db.prepare(
+      `INSERT INTO masterPassword 
+                (id, passwordHash, updatedOn, hint,  expiresOn) 
+                VALUES (@id, @passwordHash, @updatedOn, @hint, @expiresOn)`
+    ).run({
+      id: uuidv4(),
+      passwordHash: this.hashPassword(password),
+      updatedOn: this.utcNow,
+      hint: null,
+      expiresOn: null,
+    });
+  }
+
+  public get hasSetMasterPassword() {
+    return this.getMasterPassword() !== undefined;
   }
 
   public updateMasterPassword(oldPassword: string, newPassword: string): void {
@@ -417,10 +422,7 @@ export class NKriptRepo {
       });
     });
 
-    console.log(
-      `Vault session ended.\n
-       Removed the encrypted session hashes for ${allSecrets.length} secrets.`
-    );
+    console.log(`Vault session ended. Removed the encrypted session hashes for ${allSecrets.length} secrets.`);
   }
 
   /**Set a new master password id and return it. */

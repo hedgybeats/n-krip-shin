@@ -20,7 +20,12 @@ contextBridge.exposeInMainWorld("nKriptApi", <NKriptApi>{
 
   endKeyVaultSession: () => ipcRenderer.invoke("endKeyVaultSession"),
 
-  updateMasterPassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke("updateMasterPassword", [oldPassword, newPassword]),
+  hasSetMasterPassword: () => ipcRenderer.invoke("hasSetMasterPassword"),
+
+  setMasterPassword: (newPassword: string) => ipcRenderer.invoke("setMasterPassword", [newPassword]),
+
+  updateMasterPassword: (oldPassword: string, newPassword: string) =>
+    ipcRenderer.invoke("updateMasterPassword", [oldPassword, newPassword]),
 
   getSecrets: (accessToken: string) => ipcRenderer.invoke("getSecrets", [accessToken]),
 

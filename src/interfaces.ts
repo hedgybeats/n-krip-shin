@@ -19,7 +19,11 @@ interface NKriptApi {
 
   updateMasterPassword(oldPassword: string, newPassword: string): Promise<void>;
 
+  setMasterPassword(newPassword: string): Promise<void>;
+
   getSecrets: (accessToken: string) => Promise<SecretDto[]>;
+
+  hasSetMasterPassword: () => Promise<boolean>;
 
   getSecret: (secretId: number, accessToken: string) => Promise<SecretDto>;
 

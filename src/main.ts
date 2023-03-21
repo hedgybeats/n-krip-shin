@@ -68,6 +68,8 @@ function handleIpcEvents() {
   ipcMain.handle("showItemInFolder", (_, args) => shell.showItemInFolder(args[0]));
   ipcMain.handle("getAvailableCiphers", () => getAvailableCiphers());
   ipcMain.handle("cipherRequiresIv", (_, args) => cipherRequiresIv(args[0]));
+  ipcMain.handle("hasSetMasterPassword", () => repo.hasSetMasterPassword);
+  ipcMain.handle("setMasterPassword", (_, args) => repo.setMasterPassword(args[0]));
   ipcMain.handle("startKeyVaultSession", (_, args) => repo.startSession(args[0]));
   ipcMain.handle("updateMasterPassword", (_, args) => repo.updateMasterPassword(args[0], args[1]));
   ipcMain.handle("refreshVaultSession", (_, args) => repo.refreshSession(args[0]));

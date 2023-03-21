@@ -305,6 +305,12 @@ div.alert.alert-warning {
   border-color: #664d03 !important;
 }
 
+div.alert.alert-dark {
+  background-color: #1a1d20 !important;
+  color: #dee2e6 !important;
+  border-color: #343a40 !important;
+}
+
 .file-name {
   font-size: 14px;
   font-weight: 500;

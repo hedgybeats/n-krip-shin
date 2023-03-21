@@ -1,4 +1,12 @@
-const vaultTemplate = `<div id="key-vault-item-grid" class="grid-container mx-3">
+const vaultTemplate = `
+                        {{#unless secrets}}
+                          <div class="d-flex w-100 justify-content-center">
+                            <div class="alert alert-dark py-2 px-4 mb-0 mt-3 mx-5" role="alert">
+                              Nothing has been saved to the vault yet.
+                            </div>
+                          </div>
+                        {{/unless}}
+                        <div id="key-vault-item-grid" class="grid-container mx-3">
                           {{#each secrets}}
                             <div class="secret grid-item card text-bg-dark">
                               {{#with this}}
@@ -328,6 +336,18 @@ class App {
     return this.elements.changeMasterPasswordBtn;
   }
 
+  private get welcomeText() {
+    return this.elements.welcomeText;
+  }
+
+  private get keyVaultGetStartedBtn() {
+    return this.elements.keyVaultGetStartedBtn;
+  }
+
+  private get keyVaultGetStartedPasswordFc() {
+    return this.elements.keyVaultGetStartedPasswordFc;
+  }
+
   private get showSecretButtons() {
     return document.querySelectorAll("button.show-secret-btn");
   }
@@ -348,6 +368,14 @@ class App {
       this._keyVaultLoginContainer = document.getElementById("key-vault-login-container");
     }
     return this._keyVaultLoginContainer;
+  }
+
+  private _keyVaultFirstPasswordContainer?: HTMLElement;
+  private get keyVaultFirstPasswordContainer() {
+    if (this._keyVaultLoginContainer === undefined) {
+      this._keyVaultFirstPasswordContainer = document.getElementById("key-vault-first-password-container");
+    }
+    return this._keyVaultFirstPasswordContainer;
   }
 
   private _keyVaultLoginItemGrid?: HTMLElement;
@@ -428,6 +456,21 @@ class App {
     await this.setUpDefautltSettings();
     this.addClickListeners();
     this.addChangeListeners();
+    await this.hideVaultWelcome();
+    this.setUpToolTips();
+  }
+
+  private setUpToolTips() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...Array.from(tooltipTriggerList)].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
+  }
+
+  private async hideVaultWelcome() {
+    if (await this.api.hasSetMasterPassword()) {
+      this.keyVaultFirstPasswordContainer.classList.add("d-none");
+      this.welcomeText.classList.add("d-none");
+      this.keyVaultLoginContainer.classList.remove("d-none");
+    }
   }
 
   private getElements() {
@@ -502,6 +545,9 @@ class App {
       updatePasswordOldPasswordFc: document.getElementById("updatePasswordOldPasswordFc") as HTMLInputElement,
       updatePasswordNewPasswordFc: document.getElementById("updatePasswordNewPasswordFc") as HTMLInputElement,
       changeMasterPasswordBtn: document.getElementById("changeMasterPasswordBtn"),
+      welcomeText: document.getElementById("welcomeText"),
+      keyVaultGetStartedBtn: document.getElementById("key-vault-get-started-btn"),
+      keyVaultGetStartedPasswordFc: document.getElementById("keyVaultGetStartedPasswordFc") as HTMLInputElement,
     };
   }
 
@@ -623,8 +669,7 @@ class App {
       btn.addEventListener("click", async (e) => {
         const btn = e.target as HTMLElement;
         await this.api.deleteSecret(parseInt(btn.getAttribute("data-secret-id"), 10), this.accessToken);
-        const griContainer = btn.parentElement.parentElement.parentElement.parentElement;
-        griContainer.removeChild(btn.parentElement.parentElement.parentElement);
+        await this.renderKeyVault();
       });
     });
   }
@@ -670,6 +715,8 @@ class App {
   }
 
   private addClickListeners() {
+    this.keyVaultGetStartedBtn.addEventListener("click", () => this.setMasterPassword());
+
     this.changeMasterPasswordBtn.addEventListener("click", async () => this.changeMasterPassword());
 
     this.addVaultItemBtn.addEventListener("click", async () => this.addVautItem());
@@ -1035,10 +1082,24 @@ class App {
 
     await this.logoutOfKeyVault();
     await this.api.updateMasterPassword(oldPassword, newPassword);
-    this.updatePasswordOldPasswordFc.value = '';
-    this.updatePasswordNewPasswordFc.value = '';
+    this.updatePasswordOldPasswordFc.value = "";
+    this.updatePasswordNewPasswordFc.value = "";
     this.changeMasterPasswordModel.hide();
-    
+  }
+
+  private async setMasterPassword() {
+    const password = this.keyVaultGetStartedPasswordFc.value;
+
+    if (password === undefined || password === null || password.trim() === "") {
+      return;
+    }
+
+    if (password.length < 20 || password.length > 32) {
+      return;
+    }
+
+    await this.api.setMasterPassword(password);
+    this.hideVaultWelcome();
   }
 
   private async addVautItem() {

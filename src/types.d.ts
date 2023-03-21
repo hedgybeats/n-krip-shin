@@ -4,5 +4,4 @@ declare global {
   }
 }
 
-// need this so the file is viewed as a module
 export {};
