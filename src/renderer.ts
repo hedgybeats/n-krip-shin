@@ -1,77 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// No Node.js APIs are available in this process unless
-// nodeIntegration is set to true in webPreferences.
-// Use preload.js to selectively enable features
-interface NKriptApi {
-  encryptFile: (algorithm: string, filePath: string, deleteOriginal: boolean) => Promise<Encryptionresult>;
-  decryptFile: (algorithm: string, filePath: string, key: string, iv: string, deleteOriginal: boolean) => Promise<Decryptionresult>;
-  showItemInFolder: (filePath: string) => Promise<void>;
-  getAvailableCiphers: () => Promise<string[]>;
-  cipherRequiresIv: (cipher: string) => Promise<boolean>;
-  compileHandlebarsTemplate: <TData>(html: string, data: TData) => Promise<string>;
-  startKeyVaultSession: (masterPassword: string) => Promise<string>;
-  endKeyVaulSession: () => Promise<void>;
-  getSecrets: (accessToken: string) => Promise<SecretDto[]>;
-  getSecret: (secretId: number, accessToken: string) => Promise<SecretDto>;
-  deleteSecret: (secretId: number, accessToken: string) => Promise<void>;
-  addSecret: (masterPassword: string, accessToken: string, displayName: string, algorithm: string, key: string, iv: string, filePath?: string) => Promise<void>;
-}
-
-interface Encryptionresult {
-  duration: number;
-  key: string;
-  iv: string;
-  filePath: string;
-}
-
-interface Decryptionresult {
-  duration: number;
-  filePath: string;
-}
-
-interface Secret {
-  id: number;
-  displayName: string;
-  createdOn: string;
-  algorithm: string;
-  keyMasterHash: string;
-  ivMasterHash: string;
-  keySessionHash: string;
-  ivSessionHash: string;
-  filePath?: string;
-}
-
-interface SecretDto {
-  id: number;
-  displayName: string;
-  createdOn: string;
-  algorithm: string;
-  key: string;
-  iv: string;
-  filePath?: string;
-}
-
-interface MasterPassword {
-  id: number;
-  passwordHash: string;
-  updatedOn: string;
-  hint?: string;
-  expiresOn?: string;
-}
-
-interface SecretTemplate {
-  secrets: SecretDto[];
-}
-
 const vaultTemplate = `<div id="key-vault-item-grid" class="grid-container mx-3">
                           {{#each secrets}}
                             <div class="secret grid-item card text-bg-dark">
                               {{#with this}}
                                 <div class="card-header d-flex justify-content-between">
-                                  <h5 class="secret-display-name align-self-center"><span>{{displayName}}</span><small class="secret-algorithm">({{algorithm}})</small></h5>
-                                  <div>
+                                  <h5 class="secret-display-name align-self-center w-75"><span>{{displayName}}</span><small class="secret-algorithm">({{algorithm}})</small></h5>
+                                  <div class="ms-2 w-25 d-flex justify-content-end">
                                     <button data-secret-id="{{id}}" class="me-3 align-self-start un-style show-secret-btn green-hover">
                                       <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" fill="currentColor" class="bi bi-eye pointer-none" viewBox="0 0 16 16">
                                         <path class="pointer-none" d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -113,315 +46,382 @@ const vaultTemplate = `<div id="key-vault-item-grid" class="grid-container mx-3"
                           {{/each}}
                         </div>`;
 
+document.addEventListener("DOMContentLoaded", async () => {
+  const app = new App(window.nKriptApi);
+  await app.init();
+});
+
 class App {
-  public get encryptBtn() {
+  private get encryptBtn() {
     return this.elements.encryptBtn;
   }
 
-  public get encryptContainer() {
+  private get encryptContainer() {
     return this.elements.encryptContainer;
   }
 
-  public get encryptInput() {
+  private get encryptInput() {
     return this.elements.encryptInput;
   }
 
-  public get encryptInputContainer() {
+  private get encryptInputContainer() {
     return this.elements.encryptInputContainer;
   }
 
-  public get encryptSpinner() {
+  private get encryptSpinner() {
     return this.elements.encryptSpinner;
   }
 
-  public get encryptedKey() {
+  private get encryptedKey() {
     return this.elements.encryptedKey;
   }
 
-  public get encryptedOutputPath() {
+  private get encryptedOutputPath() {
     return this.elements.encryptedOutputPath;
   }
 
-  public get encryptedAlgorithm() {
+  private get encryptedAlgorithm() {
     return this.elements.encryptedAlgorithm;
   }
 
-  public get encryptIv() {
+  private get encryptIv() {
     return this.elements.encryptIv;
   }
 
-  public get decryptBtn() {
+  private get decryptBtn() {
     return this.elements.decryptBtn;
   }
 
-  public get decryptContainer() {
+  private get decryptContainer() {
     return this.elements.decryptContainer;
   }
 
-  public get decryptInput() {
+  private get decryptInput() {
     return this.elements.decryptInput;
   }
 
-  public get decryptInputContainer() {
+  private get decryptInputContainer() {
     return this.elements.decryptInputContainer;
   }
 
-  public get decryptSpinner() {
+  private get decryptSpinner() {
     return this.elements.decryptSpinner;
   }
 
-  public get keyFc() {
+  private get keyFc() {
     return this.elements.keyFc;
   }
 
-  public get ivFc() {
+  private get ivFc() {
     return this.elements.ivFc;
   }
 
-  public get keyFcError() {
+  private get keyFcError() {
     return this.elements.keyFcError;
   }
 
-  public get ivFcError() {
+  private get ivFcError() {
     return this.elements.ivFcError;
   }
 
-  public get decryptError() {
+  private get decryptError() {
     return this.elements.decryptError;
   }
 
-  public get encryptError() {
+  private get encryptError() {
     return this.elements.encryptError;
   }
 
-  public get encryptResults() {
+  private get encryptResults() {
     return this.elements.encryptResults;
   }
 
-  public get startoverEncryptButton() {
+  private get startoverEncryptButton() {
     return this.elements.startoverEncryptButton;
   }
 
-  public get deleteFileAfterEncrypt() {
+  private get deleteFileAfterEncrypt() {
     return this.elements.deleteFileAfterEncrypt;
   }
 
-  public get deleteFileAfterEncryptContainer() {
+  private get deleteFileAfterEncryptContainer() {
     return this.elements.deleteFileAfterEncryptContainer;
   }
 
-  public get deleteFileAfterDecrypt() {
+  private get deleteFileAfterDecrypt() {
     return this.elements.deleteFileAfterDecrypt;
   }
 
-  public get deleteFileAfterDecryptContainer() {
+  private get deleteFileAfterDecryptContainer() {
     return this.elements.deleteFileAfterDecryptContainer;
   }
 
-  public get clipboardButton() {
+  private get clipboardButton() {
     return this.elements.clipboardButton;
   }
 
-  public get clipboardCheckButton() {
+  private get clipboardCheckButton() {
     return this.elements.clipboardCheckButton;
   }
 
-  public get startoverDecryptButton() {
+  private get startoverDecryptButton() {
     return this.elements.startoverDecryptButton;
   }
 
-  public get decryptedPath() {
+  private get decryptedPath() {
     return this.elements.decryptedPath;
   }
 
-  public get decryptResults() {
+  private get decryptResults() {
     return this.elements.decryptResults;
   }
 
-  public get keyFcContainer() {
+  private get keyFcContainer() {
     return this.elements.keyFcContainer;
   }
 
-  public get ivFcContainer() {
+  private get ivFcContainer() {
     return this.elements.ivFcContainer;
   }
 
-  public get decryptDuration() {
+  private get decryptDuration() {
     return this.elements.decryptDuration;
   }
 
-  public get encryptDuration() {
+  private get encryptDuration() {
     return this.elements.encryptDuration;
   }
 
-  public get startDecryptingBtn() {
+  private get startDecryptingBtn() {
     return this.elements.startDecryptingBtn;
   }
 
-  public get startDecryptingBtnContainer() {
+  private get startDecryptingBtnContainer() {
     return this.elements.startDecryptingBtnContainer;
   }
 
-  public get decryptionInputSelectedFileName() {
+  private get decryptionInputSelectedFileName() {
     return this.elements.decryptionInputSelectedFileName;
   }
 
-  public get decryptionInputSelectedFileSize() {
+  private get decryptionInputSelectedFileSize() {
     return this.elements.decryptionInputSelectedFileSize;
   }
 
-  public get decryptionInputSelectedFile() {
+  private get decryptionInputSelectedFile() {
     return this.elements.decryptionInputSelectedFile;
   }
 
-  public get startEncryptingBtn() {
+  private get startEncryptingBtn() {
     return this.elements.startEncryptingBtn;
   }
 
-  public get startEncryptingBtnContainer() {
+  private get startEncryptingBtnContainer() {
     return this.elements.startEncryptingBtnContainer;
   }
 
-  public get encryptionInputSelectedFileName() {
+  private get encryptionInputSelectedFileName() {
     return this.elements.encryptionInputSelectedFileName;
   }
 
-  public get encryptionInputSelectedFileSize() {
+  private get encryptionInputSelectedFileSize() {
     return this.elements.encryptionInputSelectedFileSize;
   }
 
-  public get encryptionInputSelectedFile() {
+  private get encryptionInputSelectedFile() {
     return this.elements.encryptionInputSelectedFile;
   }
 
-  public get selectDecryptAlgorithmContainer() {
+  private get selectDecryptAlgorithmContainer() {
     return this.elements.selectDecryptAlgorithmContainer;
   }
 
-  public get selectEncryptAlgorithmContainer() {
+  private get selectEncryptAlgorithmContainer() {
     return this.elements.selectEncryptAlgorithmContainer;
   }
 
-  public get selectDecryptAlgorithm() {
+  private get selectDecryptAlgorithm() {
     return this.elements.selectDecryptAlgorithm;
   }
 
-  public get selectEncryptAlgorithm() {
+  private get selectEncryptAlgorithm() {
     return this.elements.selectEncryptAlgorithm;
   }
 
-  public get selectDefaultAlgorithm() {
+  private get selectDefaultAlgorithm() {
     return this.elements.selectDefaultAlgorithm;
   }
-  public get selectEncrypAlgorithmError() {
+
+  private get algorithmToAddFc() {
+    return this.elements.algorithmToAddFc;
+  }
+
+  private get selectEncrypAlgorithmError() {
     return this.elements.selectEncrypAlgorithmError;
   }
-  public get selectDecrypAlgorithmError() {
+
+  private get selectDecrypAlgorithmError() {
     return this.elements.selectDecrypAlgorithmError;
   }
-  public get encryptRemoveFileButton() {
+
+  private get encryptRemoveFileButton() {
     return this.elements.encryptRemoveFileButton;
   }
-  public get decryptRemoveFileButton() {
+
+  private get decryptRemoveFileButton() {
     return this.elements.decryptRemoveFileButton;
   }
-  public get deleteAfterEncryptDefault() {
+
+  private get deleteAfterEncryptDefault() {
     return this.elements.deleteAfterEncryptDefault;
   }
-  public get deleteAfterDecryptDefault() {
+
+  private get deleteAfterDecryptDefault() {
     return this.elements.deleteAfterDecryptDefault;
   }
-  public get vaultBody() {
+
+  private get vaultBody() {
     return this.elements.vaultBody;
   }
-  public get showSecretButtons() {
-    return document.querySelectorAll('button.show-secret-btn');
+
+  private get keyToAddFc() {
+    return this.elements.keyToAddFc;
   }
 
-  public get hideSecretButtons() {
-    return document.querySelectorAll('button.hide-secret-btn');
+  private get addItemPasswordFc() {
+    return this.elements.addItemPasswordFc;
   }
 
-  public get deleteSecretButtons() {
-    return document.querySelectorAll('button.delete-secret-btn');
+  private get keyToAddDisplayNameFc() {
+    return this.elements.keyToAddDisplayNameFc;
   }
+
+  private get ivToAddFc() {
+    return this.elements.ivToAddFc;
+  }
+
+  private get filePathToAddFc() {
+    return this.elements.filePathToAddFc;
+  }
+
+  private get addVaultItemBtn() {
+    return this.elements.addVaultItemBtn;
+  }
+
+  private get addVaultItemModel() {
+    return this.elements.addVaultItemModel;
+  }
+
+  private get changeMasterPasswordModel() {
+    return this.elements.changeMasterPasswordModel;
+  }
+
+  private get updatePasswordOldPasswordFc() {
+    return this.elements.updatePasswordOldPasswordFc;
+  }
+
+  private get updatePasswordNewPasswordFc() {
+    return this.elements.updatePasswordNewPasswordFc;
+  }
+
+  private get changeMasterPasswordBtn() {
+    return this.elements.changeMasterPasswordBtn;
+  }
+
+  private get showSecretButtons() {
+    return document.querySelectorAll("button.show-secret-btn");
+  }
+
+  private get hideSecretButtons() {
+    return document.querySelectorAll("button.hide-secret-btn");
+  }
+
+  private get deleteSecretButtons() {
+    return document.querySelectorAll("button.delete-secret-btn");
+  }
+
+  private refreshTokenTimeout: NodeJS.Timeout | null = null;
 
   private _keyVaultLoginContainer?: HTMLElement;
-  public get keyVaultLoginContainer() {
+  private get keyVaultLoginContainer() {
     if (this._keyVaultLoginContainer === undefined) {
-      this._keyVaultLoginContainer = document.getElementById('key-vault-login-container');
+      this._keyVaultLoginContainer = document.getElementById("key-vault-login-container");
     }
     return this._keyVaultLoginContainer;
   }
 
   private _keyVaultLoginItemGrid?: HTMLElement;
-  public get keyVaultLoginItemGrid() {
+  private get keyVaultLoginItemGrid() {
     if (this._keyVaultLoginItemGrid === undefined) {
-      this._keyVaultLoginItemGrid = document.getElementById('key-vault-item-grid');
+      this._keyVaultLoginItemGrid = document.getElementById("key-vault-item-grid");
     }
     return this._keyVaultLoginItemGrid;
   }
 
   private _keyVaultLoginButton?: HTMLElement;
-  public get keyVaultLoginButton() {
+  private get keyVaultLoginButton() {
     if (this._keyVaultLoginButton === undefined) {
-      this._keyVaultLoginButton = document.getElementById('key-vault-login');
+      this._keyVaultLoginButton = document.getElementById("key-vault-login");
     }
     return this._keyVaultLoginButton;
   }
 
   private _keyVaultPasswordFc?: HTMLInputElement;
-  public get keyVaultPasswordFc() {
+  private get keyVaultPasswordFc() {
     if (this._keyVaultPasswordFc === undefined) {
-      this._keyVaultPasswordFc = document.getElementById('keyVaultPasswordFc') as HTMLInputElement;
+      this._keyVaultPasswordFc = document.getElementById("keyVaultPasswordFc") as HTMLInputElement;
     }
     return this._keyVaultPasswordFc;
   }
 
   private _keyVaultPasswordFcError?: HTMLElement;
-  public get keyVaultPasswordFcError() {
+  private get keyVaultPasswordFcError() {
     if (this._keyVaultPasswordFcError === undefined) {
-      this._keyVaultPasswordFcError = document.getElementById('keyVaultPasswordFc-error');
+      this._keyVaultPasswordFcError = document.getElementById("keyVaultPasswordFc-error");
     }
     return this._keyVaultPasswordFcError;
   }
 
   private _openVault?: HTMLElement;
-  public get openVault() {
+  private get openVault() {
     if (this._openVault === undefined) {
-      this._openVault = document.getElementById('open-vault');
+      this._openVault = document.getElementById("open-vault");
     }
     return this._openVault;
   }
 
   private _closeVault?: HTMLElement;
-  public get closeVault() {
+  private get closeVault() {
     if (this._closeVault === undefined) {
-      this._closeVault = document.getElementById('close-vault');
+      this._closeVault = document.getElementById("close-vault");
     }
     return this._closeVault;
   }
 
   private _keyVaultCollapseSection?: HTMLElement;
-  public get keyVaultCollapseSection() {
+  private get keyVaultCollapseSection() {
     if (this._keyVaultCollapseSection === undefined) {
-      this._keyVaultCollapseSection = document.getElementById('collapseSecretVault');
+      this._keyVaultCollapseSection = document.getElementById("collapseSecretVault");
     }
     return this._keyVaultCollapseSection;
   }
 
-  public availableCiphers: string[] = [];
+  private availableCiphers: string[] = [];
 
-  public scroller = new ScrollToElementHelper();
+  private scroller = new ScrollToElementHelper();
 
   private fileToEncrypt?: File;
   private fileToDecrypt?: File;
 
   private elements = this.getElements();
 
-  private accessToken: string | null = null;
+  private vaultSessionTokens: VaultSessionTokens | null = null;
 
-  constructor(private api: NKriptApi) { }
+  private get accessToken(): string | undefined {
+    return this.vaultSessionTokens?.accessToken;
+  }
+
+  constructor(private api: NKriptApi) {}
 
   public async init() {
     this.availableCiphers = await this.api.getAvailableCiphers();
@@ -432,87 +432,101 @@ class App {
 
   private getElements() {
     return {
-      encryptBtn: document.getElementById('encrypt-btn'),
-      encryptContainer: document.getElementById('encryption-container'),
-      encryptInput: document.getElementById('encryption-input') as HTMLInputElement,
-      encryptInputContainer: document.getElementById('encryption-input-container'),
-      encryptSpinner: document.getElementById('encryption-spinner'),
-      encryptedKey: document.getElementById('encrypted-key'),
-      encryptedOutputPath: document.getElementById('encrypted-path'),
-      encryptedAlgorithm: document.getElementById('encrypted-algorithm'),
-      encryptIv: document.getElementById('encrypted-iv'),
-      decryptBtn: document.getElementById('decrypt-btn'),
-      decryptContainer: document.getElementById('decryption-container'),
-      decryptInput: document.getElementById('decryption-input') as HTMLInputElement,
-      decryptInputContainer: document.getElementById('decryption-input-container'),
-      decryptSpinner: document.getElementById('decryption-spinner'),
-      keyFc: document.getElementById('keyFc') as HTMLInputElement,
-      ivFc: document.getElementById('ivFc') as HTMLInputElement,
-      keyFcError: document.getElementById('keyFc-error'),
-      ivFcError: document.getElementById('ivFc-error'),
-      decryptError: document.getElementById('decrypt-error'),
-      encryptError: document.getElementById('encrypt-error'),
-      encryptResults: document.getElementById('encrypt-results'),
-      startoverEncryptButton: document.getElementById('startover-encrypt-btn'),
-      deleteFileAfterEncrypt: document.getElementById('delete-after-encrypt') as HTMLInputElement,
-      deleteFileAfterEncryptContainer: document.getElementById('delete-after-encrypt-container'),
-      deleteFileAfterDecrypt: document.getElementById('delete-after-decrypt') as HTMLInputElement,
-      deleteFileAfterDecryptContainer: document.getElementById('delete-after-decrypt-container'),
-      clipboardButton: document.getElementById('clipboard-btn'),
-      clipboardCheckButton: document.getElementById('clipboard-check'),
-      startoverDecryptButton: document.getElementById('startover-decrypt-btn'),
-      decryptedPath: document.getElementById('decrypted-path'),
-      decryptResults: document.getElementById('decrypt-results'),
-      keyFcContainer: document.getElementById('key-fc-container'),
-      ivFcContainer: document.getElementById('iv-fc-container'),
-      decryptDuration: document.getElementById('decrypt-duration'),
-      encryptDuration: document.getElementById('encrypt-duration'),
-      startDecryptingBtn: document.getElementById('start-decrypting'),
-      startDecryptingBtnContainer: document.getElementById('start-decrypting-container'),
-      decryptionInputSelectedFileName: document.getElementById('decryption-input-selected-file-name'),
-      decryptionInputSelectedFileSize: document.getElementById('decryption-input-selected-file-size'),
-      decryptionInputSelectedFile: document.getElementById('decryption-input-selected-file-container'),
-      startEncryptingBtn: document.getElementById('start-encrypting'),
-      startEncryptingBtnContainer: document.getElementById('start-encrypting-container'),
-      encryptionInputSelectedFileName: document.getElementById('encryption-input-selected-file-name'),
-      encryptionInputSelectedFileSize: document.getElementById('encryption-input-selected-file-size'),
-      encryptionInputSelectedFile: document.getElementById('encryption-input-selected-file-container'),
-      selectDecryptAlgorithmContainer: document.getElementById('select-decrypt-algorithm-container'),
-      selectEncryptAlgorithmContainer: document.getElementById('select-encrypt-algorithm-container'),
-      selectDecryptAlgorithm: document.getElementById('select-decrypt-algorithm') as HTMLSelectElement,
-      selectEncryptAlgorithm: document.getElementById('select-encrypt-algorithm') as HTMLSelectElement,
-      selectDefaultAlgorithm: document.getElementById('select-default-algorithm') as HTMLSelectElement,
-      selectEncrypAlgorithmError: document.getElementById('select-decrypt-algorithm-error'),
-      selectDecrypAlgorithmError: document.getElementById('select-encrypt-algorithm-error'),
-      encryptRemoveFileButton: document.getElementById('encrypt-remove-file'),
-      decryptRemoveFileButton: document.getElementById('decrypt-remove-file'),
-      deleteAfterEncryptDefault: document.getElementById('default-delete-after-encrypt') as HTMLInputElement,
-      deleteAfterDecryptDefault: document.getElementById('default-delete-after-decrypt') as HTMLInputElement,
-      vaultBody: document.getElementById('vault-body'),
+      encryptBtn: document.getElementById("encrypt-btn"),
+      encryptContainer: document.getElementById("encryption-container"),
+      encryptInput: document.getElementById("encryption-input") as HTMLInputElement,
+      encryptInputContainer: document.getElementById("encryption-input-container"),
+      encryptSpinner: document.getElementById("encryption-spinner"),
+      encryptedKey: document.getElementById("encrypted-key"),
+      encryptedOutputPath: document.getElementById("encrypted-path"),
+      encryptedAlgorithm: document.getElementById("encrypted-algorithm"),
+      encryptIv: document.getElementById("encrypted-iv"),
+      decryptBtn: document.getElementById("decrypt-btn"),
+      decryptContainer: document.getElementById("decryption-container"),
+      decryptInput: document.getElementById("decryption-input") as HTMLInputElement,
+      decryptInputContainer: document.getElementById("decryption-input-container"),
+      decryptSpinner: document.getElementById("decryption-spinner"),
+      keyFc: document.getElementById("keyFc") as HTMLInputElement,
+      ivFc: document.getElementById("ivFc") as HTMLInputElement,
+      keyFcError: document.getElementById("keyFc-error"),
+      ivFcError: document.getElementById("ivFc-error"),
+      decryptError: document.getElementById("decrypt-error"),
+      encryptError: document.getElementById("encrypt-error"),
+      encryptResults: document.getElementById("encrypt-results"),
+      startoverEncryptButton: document.getElementById("startover-encrypt-btn"),
+      deleteFileAfterEncrypt: document.getElementById("delete-after-encrypt") as HTMLInputElement,
+      deleteFileAfterEncryptContainer: document.getElementById("delete-after-encrypt-container"),
+      deleteFileAfterDecrypt: document.getElementById("delete-after-decrypt") as HTMLInputElement,
+      deleteFileAfterDecryptContainer: document.getElementById("delete-after-decrypt-container"),
+      clipboardButton: document.getElementById("clipboard-btn"),
+      clipboardCheckButton: document.getElementById("clipboard-check"),
+      startoverDecryptButton: document.getElementById("startover-decrypt-btn"),
+      decryptedPath: document.getElementById("decrypted-path"),
+      decryptResults: document.getElementById("decrypt-results"),
+      keyFcContainer: document.getElementById("key-fc-container"),
+      ivFcContainer: document.getElementById("iv-fc-container"),
+      decryptDuration: document.getElementById("decrypt-duration"),
+      encryptDuration: document.getElementById("encrypt-duration"),
+      startDecryptingBtn: document.getElementById("start-decrypting"),
+      startDecryptingBtnContainer: document.getElementById("start-decrypting-container"),
+      decryptionInputSelectedFileName: document.getElementById("decryption-input-selected-file-name"),
+      decryptionInputSelectedFileSize: document.getElementById("decryption-input-selected-file-size"),
+      decryptionInputSelectedFile: document.getElementById("decryption-input-selected-file-container"),
+      startEncryptingBtn: document.getElementById("start-encrypting"),
+      startEncryptingBtnContainer: document.getElementById("start-encrypting-container"),
+      encryptionInputSelectedFileName: document.getElementById("encryption-input-selected-file-name"),
+      encryptionInputSelectedFileSize: document.getElementById("encryption-input-selected-file-size"),
+      encryptionInputSelectedFile: document.getElementById("encryption-input-selected-file-container"),
+      selectDecryptAlgorithmContainer: document.getElementById("select-decrypt-algorithm-container"),
+      selectEncryptAlgorithmContainer: document.getElementById("select-encrypt-algorithm-container"),
+      selectDecryptAlgorithm: document.getElementById("select-decrypt-algorithm") as HTMLSelectElement,
+      selectEncryptAlgorithm: document.getElementById("select-encrypt-algorithm") as HTMLSelectElement,
+      selectDefaultAlgorithm: document.getElementById("select-default-algorithm") as HTMLSelectElement,
+      selectEncrypAlgorithmError: document.getElementById("select-decrypt-algorithm-error"),
+      selectDecrypAlgorithmError: document.getElementById("select-encrypt-algorithm-error"),
+      encryptRemoveFileButton: document.getElementById("encrypt-remove-file"),
+      decryptRemoveFileButton: document.getElementById("decrypt-remove-file"),
+      deleteAfterEncryptDefault: document.getElementById("default-delete-after-encrypt") as HTMLInputElement,
+      deleteAfterDecryptDefault: document.getElementById("default-delete-after-decrypt") as HTMLInputElement,
+      vaultBody: document.getElementById("vault-body"),
+      keyToAddFc: document.getElementById("keyToAddFc") as HTMLInputElement,
+      addItemPasswordFc: document.getElementById("addItemPasswordFc") as HTMLInputElement,
+      keyToAddDisplayNameFc: document.getElementById("keyToAddDisplayNameFc") as HTMLInputElement,
+      ivToAddFc: document.getElementById("ivToAddFc") as HTMLInputElement,
+      filePathToAddFc: document.getElementById("filePathToAddFc") as HTMLInputElement,
+      algorithmToAddFc: document.getElementById("algorithmToAddFc") as HTMLSelectElement,
+      addVaultItemBtn: document.getElementById("addVaultItemBtn"),
+      addVaultItemModel: new bootstrap.Modal(document.getElementById("addVaultItemModel")),
+      mustBeLoggedInVaultHeaderButtons: document.querySelectorAll("button.must-be-logged-in-vault-button"),
+      changeMasterPasswordModel: new bootstrap.Modal(document.getElementById("changeMasterPasswordModel")),
+      updatePasswordOldPasswordFc: document.getElementById("updatePasswordOldPasswordFc") as HTMLInputElement,
+      updatePasswordNewPasswordFc: document.getElementById("updatePasswordNewPasswordFc") as HTMLInputElement,
+      changeMasterPasswordBtn: document.getElementById("changeMasterPasswordBtn"),
     };
   }
 
   private async setUpDefautltSettings() {
-    const preferDeleteAfterEncrypt = window.localStorage.getItem('prefer-delete-after-encrypt');
-    this.deleteFileAfterEncrypt.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === '1';
-    this.deleteAfterEncryptDefault.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === '1';
+    const preferDeleteAfterEncrypt = window.localStorage.getItem("prefer-delete-after-encrypt");
+    this.deleteFileAfterEncrypt.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === "1";
+    this.deleteAfterEncryptDefault.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === "1";
 
-    const preferDeleteAfterDecrypt = window.localStorage.getItem('prefer-delete-after-decrypt');
-    this.deleteFileAfterDecrypt.checked = preferDeleteAfterDecrypt === null ? false : preferDeleteAfterDecrypt === '1';
-    this.deleteAfterDecryptDefault.checked = preferDeleteAfterDecrypt === null ? false : preferDeleteAfterDecrypt === '1';
+    const preferDeleteAfterDecrypt = window.localStorage.getItem("prefer-delete-after-decrypt");
+    this.deleteFileAfterDecrypt.checked = preferDeleteAfterDecrypt === null ? false : preferDeleteAfterDecrypt === "1";
+    this.deleteAfterDecryptDefault.checked = preferDeleteAfterDecrypt === null ? false : preferDeleteAfterDecrypt === "1";
 
-    let defaultAlgorithm: string | null = window.localStorage.getItem('default-algorithm');
+    let defaultAlgorithm: string | null = window.localStorage.getItem("default-algorithm");
 
     if (defaultAlgorithm === null) {
-      window.localStorage.setItem('default-algorithm', 'aes-256-cbc');
-      defaultAlgorithm = 'aes-256-cbc';
+      window.localStorage.setItem("default-algorithm", "aes-256-cbc");
+      defaultAlgorithm = "aes-256-cbc";
     }
 
     // set default cipher algorithm
     for (const cipher of this.availableCiphers) {
-      const encryptOpt = document.createElement('option');
-      const decryptOpt = document.createElement('option');
-      const defaultOpt = document.createElement('option');
+      const encryptOpt = document.createElement("option");
+      const decryptOpt = document.createElement("option");
+      const defaultOpt = document.createElement("option");
+      const toAddOpt = document.createElement("option");
 
       decryptOpt.value = cipher;
       decryptOpt.innerHTML = cipher;
@@ -520,44 +534,49 @@ class App {
       encryptOpt.innerHTML = cipher;
       defaultOpt.value = cipher;
       defaultOpt.innerHTML = cipher;
+      toAddOpt.value = cipher;
+      toAddOpt.innerHTML = cipher;
 
       // default to default algorithm or hard coded default
       if (cipher === defaultAlgorithm) {
         encryptOpt.selected = true;
         decryptOpt.selected = true;
         defaultOpt.selected = true;
+        toAddOpt.selected = true;
       }
 
       this.selectEncryptAlgorithm.options.add(encryptOpt);
       this.selectDecryptAlgorithm.options.add(decryptOpt);
       this.selectDefaultAlgorithm.options.add(defaultOpt);
+      this.algorithmToAddFc.options.add(toAddOpt);
     }
 
     // store default algorithm on change
-    this.selectDefaultAlgorithm.addEventListener('change', (e: Event) => {
+    this.selectDefaultAlgorithm.addEventListener("change", (e: Event) => {
       const target = e.target as HTMLSelectElement;
       if (target) {
-        window.localStorage.setItem('default-algorithm', target.value);
+        window.localStorage.setItem("default-algorithm", target.value);
 
         this.selectEncryptAlgorithm.value = target.value;
         this.selectDecryptAlgorithm.value = target.value;
+        this.algorithmToAddFc.value = target.value;
       }
     });
 
     // store default values on changes
-    this.deleteAfterEncryptDefault.addEventListener('change', (e: Event) => {
+    this.deleteAfterEncryptDefault.addEventListener("change", (e: Event) => {
       const target = e.target as HTMLInputElement;
       if (target) {
-        window.localStorage.setItem('prefer-delete-after-encrypt', target.checked ? '1' : '0');
+        window.localStorage.setItem("prefer-delete-after-encrypt", target.checked ? "1" : "0");
 
         this.deleteFileAfterEncrypt.checked = target.checked;
       }
     });
 
-    this.deleteAfterDecryptDefault.addEventListener('change', (e: Event) => {
+    this.deleteAfterDecryptDefault.addEventListener("change", (e: Event) => {
       const target = e.target as HTMLInputElement;
       if (target) {
-        window.localStorage.setItem('prefer-delete-after-decrypt', target.checked ? '1' : '0');
+        window.localStorage.setItem("prefer-delete-after-decrypt", target.checked ? "1" : "0");
 
         this.deleteFileAfterDecrypt.checked = target.checked;
       }
@@ -569,42 +588,41 @@ class App {
       secrets: await this.api.getSecrets(this.accessToken),
     });
 
-
     this.showSecretButtons.forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
+      btn.addEventListener("click", async (e) => {
         const btn = e.target as HTMLElement;
-        const secret = await this.api.getSecret(parseInt(btn.getAttribute('data-secret-id'), 10), this.accessToken);
+        const secret = await this.api.getSecret(parseInt(btn.getAttribute("data-secret-id"), 10), this.accessToken);
 
-        const keyField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-key') as HTMLElement;
-        const ivField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-iv') as HTMLElement;
-        const hideSecretsBtn = btn.parentElement.parentElement.parentElement.querySelector('button.hide-secret-btn') as HTMLElement;
+        const keyField = btn.parentElement.parentElement.parentElement.querySelector("span.secret-key") as HTMLElement;
+        const ivField = btn.parentElement.parentElement.parentElement.querySelector("span.secret-iv") as HTMLElement;
+        const hideSecretsBtn = btn.parentElement.parentElement.parentElement.querySelector("button.hide-secret-btn") as HTMLElement;
 
         keyField.innerText = secret.key;
         ivField.innerText = secret.iv;
-        btn.classList.add('d-none');
-        hideSecretsBtn.classList.remove('d-none');
+        btn.classList.add("d-none");
+        hideSecretsBtn.classList.remove("d-none");
       });
     });
 
     this.hideSecretButtons.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener("click", (e) => {
         const btn = e.target as HTMLElement;
 
-        const keyField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-key') as HTMLElement;
-        const ivField = btn.parentElement.parentElement.parentElement.querySelector('span.secret-iv') as HTMLElement;
-        const showSecretsBtn = btn.parentElement.parentElement.parentElement.querySelector('button.show-secret-btn') as HTMLElement;
+        const keyField = btn.parentElement.parentElement.parentElement.querySelector("span.secret-key") as HTMLElement;
+        const ivField = btn.parentElement.parentElement.parentElement.querySelector("span.secret-iv") as HTMLElement;
+        const showSecretsBtn = btn.parentElement.parentElement.parentElement.querySelector("button.show-secret-btn") as HTMLElement;
 
-        keyField.innerText = '**********';
-        ivField.innerText = '**********';
-        btn.classList.add('d-none');
-        showSecretsBtn.classList.remove('d-none');
+        keyField.innerText = "**********";
+        ivField.innerText = "**********";
+        btn.classList.add("d-none");
+        showSecretsBtn.classList.remove("d-none");
       });
     });
 
     this.deleteSecretButtons.forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
+      btn.addEventListener("click", async (e) => {
         const btn = e.target as HTMLElement;
-        await this.api.deleteSecret(parseInt(btn.getAttribute('data-secret-id'), 10), this.accessToken);
+        await this.api.deleteSecret(parseInt(btn.getAttribute("data-secret-id"), 10), this.accessToken);
         const griContainer = btn.parentElement.parentElement.parentElement.parentElement;
         griContainer.removeChild(btn.parentElement.parentElement.parentElement);
       });
@@ -612,157 +630,175 @@ class App {
   }
 
   private async loginToKeyVault() {
-    this.keyVaultPasswordFcError.innerText = '';
+    this.keyVaultPasswordFcError.innerText = "";
 
     const password = this.keyVaultPasswordFc.value;
-    if (password.trim() === '') {
-      this.keyVaultPasswordFcError.innerText = 'Please enter a password';
+    if (password.trim() === "") {
+      this.keyVaultPasswordFcError.innerText = "Please enter a password";
       return;
     }
 
     try {
-      this.accessToken = await this.api.startKeyVaultSession(password);
+      this.vaultSessionTokens = await this.api.startKeyVaultSession(password);
+      this.startRefreshTokenTimer(this.vaultSessionTokens.refreshInMs);
     } catch (err) {
-      this.keyVaultPasswordFcError.innerText = err?.message ?? 'An unknown error has occured.';
+      this.keyVaultPasswordFcError.innerText = err?.message ?? "An unknown error has occured.";
       return;
     }
 
-    await this.api.addSecret('SteamyAvoAndBakedBroccoliIsGood', this.accessToken, 'My Dummy Secret 1', 'aes-256-cbc', '65465465465454654654564', '1122112211221');
-
-    this.keyVaultLoginContainer.classList.add('d-none');
-    this.keyVaultPasswordFc.value = '';
+    // hide the login box and render the vault items
+    // scroll the items into view
+    this.keyVaultLoginContainer.classList.add("d-none");
+    this.keyVaultPasswordFc.value = "";
     await this.renderKeyVault();
-    await this.scroller.scrollTo('#key-vault-header', 50);
+    await this.scroller.scrollTo("#key-vault-header", 50);
+  }
+
+  private async refreshKeyVaultSession() {
+    this.vaultSessionTokens = await this.api.refreshVaultSession(this.vaultSessionTokens);
+    this.startRefreshTokenTimer(this.vaultSessionTokens.refreshInMs);
   }
 
   private async logoutOfKeyVault() {
-    await this.api.endKeyVaulSession();
-    this.accessToken = null;
+    await this.api.endKeyVaultSession();
+    this.stopRefreshTokenTimer();
+    this.vaultSessionTokens = null;
 
-    this.keyVaultLoginContainer.classList.remove('d-none');
-    this.vaultBody.innerHTML = '';
+    // hide vault items and show login box again
+    this.keyVaultLoginContainer.classList.remove("d-none");
+    this.vaultBody.innerHTML = "";
   }
 
   private addClickListeners() {
-    this.openVault.addEventListener('click', async () => {
-      await this.scroller.scrollTo('#key-vault-header', 50);
-      this.openVault.classList.add('d-none');
+    this.changeMasterPasswordBtn.addEventListener("click", async () => this.changeMasterPassword());
+
+    this.addVaultItemBtn.addEventListener("click", async () => this.addVautItem());
+
+    this.openVault.addEventListener("click", async () => {
+      await this.scroller.scrollTo("#key-vault-header", 50);
+      this.openVault.classList.add("d-none");
     });
 
-    this.closeVault.addEventListener('click', async () => {
-      this.logoutOfKeyVault();
-      this.openVault.classList.remove('d-none');
+    this.closeVault.addEventListener("click", async () => {
+      if (this.vaultSessionTokens !== null) {
+        await this.logoutOfKeyVault();
+      }
+
+      this.openVault.classList.remove("d-none");
     });
 
-    this.keyVaultLoginButton.addEventListener('click', async () => await this.loginToKeyVault());
+    this.keyVaultLoginButton.addEventListener("click", async () => await this.loginToKeyVault());
 
-
-    this.encryptedOutputPath.addEventListener('click', () => {
-      this.api.showItemInFolder(this.encryptedOutputPath.getAttribute('data-path'));
+    this.encryptedOutputPath.addEventListener("click", () => {
+      this.api.showItemInFolder(this.encryptedOutputPath.getAttribute("data-path"));
     });
 
-    this.decryptedPath.addEventListener('click', () => {
-      this.api.showItemInFolder(this.decryptedPath.getAttribute('data-path'));
+    this.decryptedPath.addEventListener("click", () => {
+      this.api.showItemInFolder(this.decryptedPath.getAttribute("data-path"));
     });
 
-    this.encryptBtn.addEventListener('click', () => {
-      this.encryptBtn.classList.remove('btn-secondary');
-      this.encryptBtn.classList.add('btn-success');
+    this.encryptBtn.addEventListener("click", () => {
+      this.encryptBtn.classList.remove("btn-secondary");
+      this.encryptBtn.classList.add("btn-success");
 
-      this.decryptBtn.classList.remove('btn-success');
-      this.decryptBtn.classList.add('btn-secondary');
+      this.decryptBtn.classList.remove("btn-success");
+      this.decryptBtn.classList.add("btn-secondary");
 
-      this.encryptContainer.classList.remove('d-none');
-      this.decryptContainer.classList.add('d-none');
+      this.encryptContainer.classList.remove("d-none");
+      this.decryptContainer.classList.add("d-none");
     });
 
-    this.decryptBtn.addEventListener('click', () => {
-      this.decryptBtn.classList.remove('btn-secondary');
-      this.decryptBtn.classList.add('btn-success');
+    this.decryptBtn.addEventListener("click", () => {
+      this.decryptBtn.classList.remove("btn-secondary");
+      this.decryptBtn.classList.add("btn-success");
 
-      this.encryptBtn.classList.remove('btn-success');
-      this.encryptBtn.classList.add('btn-secondary');
+      this.encryptBtn.classList.remove("btn-success");
+      this.encryptBtn.classList.add("btn-secondary");
 
-      this.decryptContainer.classList.remove('d-none');
-      this.encryptContainer.classList.add('d-none');
+      this.decryptContainer.classList.remove("d-none");
+      this.encryptContainer.classList.add("d-none");
     });
 
-    this.startEncryptingBtn.addEventListener('click', async () => {
-      this.encryptError.innerText = '';
+    this.startEncryptingBtn.addEventListener("click", async () => {
+      this.encryptError.innerText = "";
 
       const mustDeleteFile = !!this.deleteFileAfterEncrypt.checked;
       // saving spinner
-      this.encryptSpinner.classList.remove('d-none');
-      this.deleteFileAfterEncryptContainer.classList.add('d-none');
-      this.encryptInputContainer.classList.add('d-none');
-      this.selectEncryptAlgorithmContainer.classList.add('d-none');
-      this.encryptionInputSelectedFile.classList.add('d-none');
-      this.startEncryptingBtnContainer.classList.add('d-none');
+      this.encryptSpinner.classList.remove("d-none");
+      this.deleteFileAfterEncryptContainer.classList.add("d-none");
+      this.encryptInputContainer.classList.add("d-none");
+      this.selectEncryptAlgorithmContainer.classList.add("d-none");
+      this.encryptionInputSelectedFile.classList.add("d-none");
+      this.startEncryptingBtnContainer.classList.add("d-none");
 
       const algorithmValue = this.selectEncryptAlgorithm.value;
       let hasErrors = false;
 
       if (algorithmValue === null || algorithmValue === undefined || algorithmValue.trim().length === 0) {
-        this.selectEncrypAlgorithmError.innerText = 'Please provide select an algorithm.';
+        this.selectEncrypAlgorithmError.innerText = "Please provide select an algorithm.";
         hasErrors = true;
       }
 
       if (hasErrors) {
         //show fields again
-        this.encryptSpinner.classList.add('d-none');
-        this.deleteFileAfterEncryptContainer.classList.remove('d-none');
-        this.encryptInputContainer.classList.remove('d-none');
-        this.selectEncryptAlgorithmContainer.classList.remove('d-none');
-        this.encryptionInputSelectedFile.classList.remove('d-none');
-        this.startEncryptingBtnContainer.classList.remove('d-none');
+        this.encryptSpinner.classList.add("d-none");
+        this.deleteFileAfterEncryptContainer.classList.remove("d-none");
+        this.encryptInputContainer.classList.remove("d-none");
+        this.selectEncryptAlgorithmContainer.classList.remove("d-none");
+        this.encryptionInputSelectedFile.classList.remove("d-none");
+        this.startEncryptingBtnContainer.classList.remove("d-none");
         return;
       }
 
-      this.selectEncrypAlgorithmError.innerText = '';
+      this.selectEncrypAlgorithmError.innerText = "";
 
-      const encryptionResult = await this.api.encryptFile(algorithmValue, this.fileToEncrypt.path, mustDeleteFile).catch((err) => (this.encryptError.innerText = err.message));
+      const encryptionResult = await this.api
+        .encryptFile(algorithmValue, this.fileToEncrypt.path, mustDeleteFile)
+        .catch((err) => (this.encryptError.innerText = err.message));
 
       // hide spinner
-      this.encryptSpinner.classList.add('d-none');
+      this.encryptSpinner.classList.add("d-none");
 
       // means error
       if (!this.isEncryptionResult(encryptionResult)) {
-        this.deleteFileAfterEncryptContainer.classList.remove('d-none');
-        this.encryptInputContainer.classList.remove('d-none');
-        this.selectEncryptAlgorithmContainer.classList.remove('d-none');
-        this.encryptionInputSelectedFile.classList.remove('d-none');
-        this.startEncryptingBtnContainer.classList.remove('d-none');
+        this.deleteFileAfterEncryptContainer.classList.remove("d-none");
+        this.encryptInputContainer.classList.remove("d-none");
+        this.selectEncryptAlgorithmContainer.classList.remove("d-none");
+        this.encryptionInputSelectedFile.classList.remove("d-none");
+        this.startEncryptingBtnContainer.classList.remove("d-none");
         return;
       }
 
-      this.encryptDuration.innerText = `${this.formatBytes(this.fileToEncrypt.size)} in ${(encryptionResult.duration / 1000).toFixed(2)} seconds`;
+      this.encryptDuration.innerText = `${this.formatBytes(this.fileToEncrypt.size)} in ${(encryptionResult.duration / 1000).toFixed(
+        2
+      )} seconds`;
 
       this.encryptedKey.innerHTML = `<strong class="text-success me-2">Key:</strong><span>${encryptionResult.key}</span>`;
-      this.encryptedKey.setAttribute('data-key', encryptionResult.key);
+      this.encryptedKey.setAttribute("data-key", encryptionResult.key);
 
       this.encryptIv.innerHTML = `<strong class="text-success me-2">IV:</strong><span>${encryptionResult.iv}</span>`;
-      this.encryptIv.setAttribute('data-iv', encryptionResult.iv);
+      this.encryptIv.setAttribute("data-iv", encryptionResult.iv);
 
       this.encryptedAlgorithm.innerHTML = `<strong class="text-success me-2">Algorithm:</strong><span>${algorithmValue}</span>`;
-      this.encryptedAlgorithm.setAttribute('data-algorithm', algorithmValue);
+      this.encryptedAlgorithm.setAttribute("data-algorithm", algorithmValue);
 
       this.encryptedOutputPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${encryptionResult.filePath}</a>`;
-      this.encryptedOutputPath.setAttribute('data-path', encryptionResult.filePath);
+      this.encryptedOutputPath.setAttribute("data-path", encryptionResult.filePath);
 
-      this.encryptResults.classList.remove('d-none');
+      this.encryptResults.classList.remove("d-none");
     });
 
-    this.startDecryptingBtn.addEventListener('click', async () => {
-      this.encryptError.innerText = '';
+    this.startDecryptingBtn.addEventListener("click", async () => {
+      this.encryptError.innerText = "";
 
-      this.decryptSpinner.classList.remove('d-none');
-      this.decryptInputContainer.classList.add('d-none');
-      this.deleteFileAfterDecryptContainer.classList.add('d-none');
-      this.keyFcContainer.classList.add('d-none');
-      this.ivFcContainer.classList.add('d-none');
-      this.decryptionInputSelectedFile.classList.add('d-none');
-      this.selectDecryptAlgorithmContainer.classList.add('d-none');
-      this.startDecryptingBtnContainer.classList.add('d-none');
+      this.decryptSpinner.classList.remove("d-none");
+      this.decryptInputContainer.classList.add("d-none");
+      this.deleteFileAfterDecryptContainer.classList.add("d-none");
+      this.keyFcContainer.classList.add("d-none");
+      this.ivFcContainer.classList.add("d-none");
+      this.decryptionInputSelectedFile.classList.add("d-none");
+      this.selectDecryptAlgorithmContainer.classList.add("d-none");
+      this.startDecryptingBtnContainer.classList.add("d-none");
 
       const mustDeleteFile = !!this.deleteFileAfterDecrypt.checked;
       const keyValue = this.keyFc.value;
@@ -772,175 +808,184 @@ class App {
       let hasErrors = false;
 
       if (keyValue === null || keyValue === undefined || keyValue.trim().length === 0) {
-        this.keyFcError.innerText = 'Please provide a key.';
+        this.keyFcError.innerText = "Please provide a key.";
         hasErrors = true;
       }
 
       const requiresIv = await this.api.cipherRequiresIv(algorithmValue);
 
       if (requiresIv && (ivValue === null || ivValue === undefined || ivValue.trim().length === 0)) {
-        this.ivFcError.innerText = 'Please provide an IV.';
+        this.ivFcError.innerText = "Please provide an IV.";
         hasErrors = true;
       }
 
       if (algorithmValue === null || algorithmValue === undefined || algorithmValue.trim().length === 0) {
-        this.selectDecrypAlgorithmError.innerText = 'Please provide select an algorithm.';
+        this.selectDecrypAlgorithmError.innerText = "Please provide select an algorithm.";
         hasErrors = true;
       }
 
       if (hasErrors) {
         // hide spinner
-        this.decryptSpinner.classList.add('d-none');
-        this.decryptInputContainer.classList.remove('d-none');
-        this.deleteFileAfterDecryptContainer.classList.remove('d-none');
-        this.selectDecryptAlgorithmContainer.classList.remove('d-none');
-        this.decryptionInputSelectedFile.classList.remove('d-none');
-        this.selectDecryptAlgorithmContainer.classList.remove('d-none');
-        this.startDecryptingBtnContainer.classList.remove('d-none');
-        this.keyFcContainer.classList.remove('d-none');
-        this.ivFcContainer.classList.remove('d-none');
-        this.decryptInput.value = '';
+        this.decryptSpinner.classList.add("d-none");
+        this.decryptInputContainer.classList.remove("d-none");
+        this.deleteFileAfterDecryptContainer.classList.remove("d-none");
+        this.selectDecryptAlgorithmContainer.classList.remove("d-none");
+        this.decryptionInputSelectedFile.classList.remove("d-none");
+        this.selectDecryptAlgorithmContainer.classList.remove("d-none");
+        this.startDecryptingBtnContainer.classList.remove("d-none");
+        this.keyFcContainer.classList.remove("d-none");
+        this.ivFcContainer.classList.remove("d-none");
+        this.decryptInput.value = "";
         return;
       }
 
-      this.keyFcError.innerText = '';
-      this.ivFcError.innerText = '';
-      this.selectDecrypAlgorithmError.innerText = '';
+      this.keyFcError.innerText = "";
+      this.ivFcError.innerText = "";
+      this.selectDecrypAlgorithmError.innerText = "";
 
-      const decryptResult = await this.api.decryptFile(algorithmValue, this.fileToDecrypt.path, keyValue, ivValue, mustDeleteFile).catch((err) => (this.decryptError.innerText = err.message));
+      const decryptResult = await this.api
+        .decryptFile(algorithmValue, this.fileToDecrypt.path, keyValue, ivValue, mustDeleteFile)
+        .catch((err) => (this.decryptError.innerText = err.message));
 
-      this.decryptSpinner.classList.add('d-none');
+      this.decryptSpinner.classList.add("d-none");
 
       // means error
       if (!this.isDecryptionResult(decryptResult)) {
         // show fields again
-        this.decryptInputContainer.classList.remove('d-none');
-        this.deleteFileAfterDecryptContainer.classList.remove('d-none');
-        this.keyFcContainer.classList.remove('d-none');
-        this.ivFcContainer.classList.remove('d-none');
-        this.selectDecryptAlgorithmContainer.classList.remove('d-none');
-        this.decryptionInputSelectedFile.classList.remove('d-none');
-        this.startDecryptingBtnContainer.classList.remove('d-none');
+        this.decryptInputContainer.classList.remove("d-none");
+        this.deleteFileAfterDecryptContainer.classList.remove("d-none");
+        this.keyFcContainer.classList.remove("d-none");
+        this.ivFcContainer.classList.remove("d-none");
+        this.selectDecryptAlgorithmContainer.classList.remove("d-none");
+        this.decryptionInputSelectedFile.classList.remove("d-none");
+        this.startDecryptingBtnContainer.classList.remove("d-none");
         return;
       }
 
-      this.decryptDuration.innerText = `${this.formatBytes(this.fileToDecrypt.size)} in ${(decryptResult.duration / 1000).toFixed(2)} seconds`;
+      this.decryptDuration.innerText = `${this.formatBytes(this.fileToDecrypt.size)} in ${(decryptResult.duration / 1000).toFixed(
+        2
+      )} seconds`;
 
       this.decryptedPath.innerHTML = `<strong class="text-success me-2">File Path:</strong><a class="text-light underline fst-italic cursor-pointer">${decryptResult.filePath}</a>`;
-      this.decryptedPath.setAttribute('data-path', decryptResult.filePath);
+      this.decryptedPath.setAttribute("data-path", decryptResult.filePath);
 
-      this.decryptResults.classList.remove('d-none');
+      this.decryptResults.classList.remove("d-none");
     });
 
-    this.encryptRemoveFileButton.addEventListener('click', () => {
-      this.encryptionInputSelectedFile.classList.add('d-none');
-      this.encryptionInputSelectedFileName.innerText = '';
-      this.encryptionInputSelectedFileSize.innerText = '';
-      this.startEncryptingBtnContainer.classList.add('d-none');
-      this.encryptInputContainer.classList.remove('d-none');
+    this.encryptRemoveFileButton.addEventListener("click", () => {
+      this.encryptionInputSelectedFile.classList.add("d-none");
+      this.encryptionInputSelectedFileName.innerText = "";
+      this.encryptionInputSelectedFileSize.innerText = "";
+      this.startEncryptingBtnContainer.classList.add("d-none");
+      this.encryptInputContainer.classList.remove("d-none");
     });
 
-    this.decryptRemoveFileButton.addEventListener('click', () => {
-      this.decryptionInputSelectedFile.classList.add('d-none');
-      this.decryptionInputSelectedFileName.innerText = '';
-      this.decryptionInputSelectedFileSize.innerText = '';
-      this.startDecryptingBtnContainer.classList.add('d-none');
-      this.decryptInputContainer.classList.remove('d-none');
+    this.decryptRemoveFileButton.addEventListener("click", () => {
+      this.decryptionInputSelectedFile.classList.add("d-none");
+      this.decryptionInputSelectedFileName.innerText = "";
+      this.decryptionInputSelectedFileSize.innerText = "";
+      this.startDecryptingBtnContainer.classList.add("d-none");
+      this.decryptInputContainer.classList.remove("d-none");
     });
 
-    this.startoverEncryptButton.addEventListener('click', () => {
-      this.encryptInput.value = '';
-      this.encryptedKey.innerHTML = '';
-      this.encryptIv.innerHTML = '';
-      this.encryptInputContainer.classList.remove('d-none');
-      this.deleteFileAfterEncryptContainer.classList.remove('d-none');
-      this.selectEncryptAlgorithmContainer.classList.remove('d-none');
-      this.encryptResults.classList.add('d-none');
-      this.clipboardButton.classList.remove('d-none');
-      this.clipboardCheckButton.classList.add('d-none');
+    this.startoverEncryptButton.addEventListener("click", () => {
+      this.encryptInput.value = "";
+      this.encryptedKey.innerHTML = "";
+      this.encryptIv.innerHTML = "";
+      this.encryptInputContainer.classList.remove("d-none");
+      this.deleteFileAfterEncryptContainer.classList.remove("d-none");
+      this.selectEncryptAlgorithmContainer.classList.remove("d-none");
+      this.encryptResults.classList.add("d-none");
+      this.clipboardButton.classList.remove("d-none");
+      this.clipboardCheckButton.classList.add("d-none");
       this.fileToEncrypt = undefined;
     });
 
-    this.startoverDecryptButton.addEventListener('click', () => {
-      this.decryptInput.value = '';
-      this.decryptedPath.innerHTML = '';
-      this.keyFc.value = '';
-      this.keyFcContainer.classList.remove('d-none');
-      this.ivFc.value = '';
-      this.ivFcContainer.classList.remove('d-none');
-      this.decryptInputContainer.classList.remove('d-none');
-      this.deleteFileAfterDecryptContainer.classList.remove('d-none');
-      this.selectDecryptAlgorithmContainer.classList.remove('d-none');
-      this.decryptResults.classList.add('d-none');
+    this.startoverDecryptButton.addEventListener("click", () => {
+      this.decryptInput.value = "";
+      this.decryptedPath.innerHTML = "";
+      this.keyFc.value = "";
+      this.keyFcContainer.classList.remove("d-none");
+      this.ivFc.value = "";
+      this.ivFcContainer.classList.remove("d-none");
+      this.decryptInputContainer.classList.remove("d-none");
+      this.deleteFileAfterDecryptContainer.classList.remove("d-none");
+      this.selectDecryptAlgorithmContainer.classList.remove("d-none");
+      this.decryptResults.classList.add("d-none");
       this.fileToEncrypt = undefined;
     });
 
     const copyEncryptionResults = async () => {
       await navigator.clipboard.writeText(
         JSON.stringify({
-          key: this.encryptedKey.getAttribute('data-key'),
-          iv: this.encryptIv.getAttribute('data-iv'),
-          algorithm: this.encryptedAlgorithm.getAttribute('data-algorithm'),
-          path: this.encryptedOutputPath.getAttribute('data-path'),
+          key: this.encryptedKey.getAttribute("data-key"),
+          iv: this.encryptIv.getAttribute("data-iv"),
+          algorithm: this.encryptedAlgorithm.getAttribute("data-algorithm"),
+          path: this.encryptedOutputPath.getAttribute("data-path"),
         })
       );
     };
 
-    this.clipboardButton.addEventListener('click', async () => {
+    this.clipboardButton.addEventListener("click", async () => {
       await copyEncryptionResults();
 
-      this.clipboardButton.classList.add('d-none');
-      this.clipboardCheckButton.classList.remove('d-none');
+      this.clipboardButton.classList.add("d-none");
+      this.clipboardCheckButton.classList.remove("d-none");
     });
 
-    this.clipboardCheckButton.addEventListener('click', async () => {
+    this.clipboardCheckButton.addEventListener("click", async () => {
       await copyEncryptionResults();
     });
   }
 
   private addChangeListeners() {
-    this.encryptInput.addEventListener('change', async (e: Event) => {
-      this.encryptError.innerText = '';
+    this.encryptInput.addEventListener("change", async (e: Event) => {
+      this.encryptError.innerText = "";
       const target = e.target as HTMLInputElement;
       const targetFile = target.files[0];
       if (targetFile) {
         this.fileToEncrypt = targetFile;
-        this.encryptionInputSelectedFile.classList.remove('d-none');
+        this.encryptionInputSelectedFile.classList.remove("d-none");
         this.encryptionInputSelectedFileName.innerText = targetFile.name;
         this.encryptionInputSelectedFileSize.innerText = this.formatBytes(targetFile.size);
-        this.startEncryptingBtnContainer.classList.remove('d-none');
-        this.encryptInputContainer.classList.add('d-none');
+        this.startEncryptingBtnContainer.classList.remove("d-none");
+        this.encryptInputContainer.classList.add("d-none");
       } else {
-        this.encryptionInputSelectedFile.classList.add('d-none');
-        this.encryptionInputSelectedFileName.innerText = '';
-        this.encryptionInputSelectedFileSize.innerText = '';
-        this.startEncryptingBtnContainer.classList.add('d-none');
+        this.encryptionInputSelectedFile.classList.add("d-none");
+        this.encryptionInputSelectedFileName.innerText = "";
+        this.encryptionInputSelectedFileSize.innerText = "";
+        this.startEncryptingBtnContainer.classList.add("d-none");
       }
     });
 
-    this.decryptInput.addEventListener('change', async (e: Event) => {
-      this.decryptError.innerText = '';
+    this.decryptInput.addEventListener("change", async (e: Event) => {
+      this.decryptError.innerText = "";
 
       const target = e.target as HTMLInputElement;
       const targetFile = target.files[0];
       if (targetFile) {
         this.fileToDecrypt = targetFile;
-        this.decryptionInputSelectedFile.classList.remove('d-none');
+        this.decryptionInputSelectedFile.classList.remove("d-none");
         this.decryptionInputSelectedFileName.innerText = targetFile.name;
         this.decryptionInputSelectedFileSize.innerText = this.formatBytes(targetFile.size);
-        this.startDecryptingBtnContainer.classList.remove('d-none');
-        this.decryptInputContainer.classList.add('d-none');
+        this.startDecryptingBtnContainer.classList.remove("d-none");
+        this.decryptInputContainer.classList.add("d-none");
       } else {
-        this.decryptionInputSelectedFile.classList.add('d-none');
-        this.decryptionInputSelectedFileName.innerText = '';
-        this.decryptionInputSelectedFileSize.innerText = '';
-        this.startDecryptingBtnContainer.classList.add('d-none');
+        this.decryptionInputSelectedFile.classList.add("d-none");
+        this.decryptionInputSelectedFileName.innerText = "";
+        this.decryptionInputSelectedFileSize.innerText = "";
+        this.startDecryptingBtnContainer.classList.add("d-none");
       }
     });
   }
 
   private isEncryptionResult(result: Encryptionresult | NodeJS.ErrnoException): result is Encryptionresult {
-    return (<Encryptionresult>result).filePath !== undefined && (<Encryptionresult>result).key !== undefined && (<Encryptionresult>result).iv !== undefined && (<Encryptionresult>result).duration !== undefined;
+    return (
+      (<Encryptionresult>result).filePath !== undefined &&
+      (<Encryptionresult>result).key !== undefined &&
+      (<Encryptionresult>result).iv !== undefined &&
+      (<Encryptionresult>result).duration !== undefined
+    );
   }
 
   private isDecryptionResult(result: Decryptionresult | NodeJS.ErrnoException): result is Decryptionresult {
@@ -949,24 +994,98 @@ class App {
 
   private formatBytes(bytes: number, decimals = 0) {
     if (bytes === 0) {
-      return '0 Bytes';
+      return "0 Bytes";
     }
     const k = 1024;
     const dm = decimals <= 0 ? 0 : decimals || 2;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  private startRefreshTokenTimer(refreshInMs: number) {
+    this.refreshTokenTimeout = setTimeout(async () => await this.refreshKeyVaultSession(), refreshInMs);
+  }
+
+  private stopRefreshTokenTimer() {
+    clearTimeout(this.refreshTokenTimeout);
+  }
+
+  private async changeMasterPassword() {
+    const oldPassword = this.updatePasswordOldPasswordFc.value;
+    const newPassword = this.updatePasswordNewPasswordFc.value;
+
+    if (oldPassword === undefined || oldPassword === null || oldPassword.trim() === "") {
+      return;
+    }
+
+    if (newPassword === undefined || newPassword === null || newPassword.trim() === "") {
+      return;
+    }
+
+    if (newPassword.trim().length < 16) {
+      // password too small
+      return;
+    }
+
+    if (newPassword.trim().length > 32) {
+      // password too large
+      return;
+    }
+
+    await this.logoutOfKeyVault();
+    await this.api.updateMasterPassword(oldPassword, newPassword);
+    this.updatePasswordOldPasswordFc.value = '';
+    this.updatePasswordNewPasswordFc.value = '';
+    this.changeMasterPasswordModel.hide();
+    
+  }
+
+  private async addVautItem() {
+    const displayName = this.keyToAddDisplayNameFc.value;
+    const keyToAdd = this.keyToAddFc.value;
+    const ivToAdd = this.ivToAddFc.value;
+    let algorithm = this.algorithmToAddFc.value;
+    algorithm = algorithm === "-1" ? null : algorithm;
+    const filePath = this.filePathToAddFc.value;
+    const password = this.addItemPasswordFc.value;
+
+    if (displayName === undefined || displayName === null || displayName.trim() === "") {
+      return;
+    }
+
+    if (keyToAdd === undefined || keyToAdd === null || keyToAdd.trim() === "") {
+      return;
+    }
+
+    if (password === undefined || password === null || password.trim() === "") {
+      return;
+    }
+
+    await this.api.addSecret(password, displayName, algorithm, keyToAdd, ivToAdd, filePath, this.accessToken);
+
+    // re-render the vault items if the vault is open
+    if (this.vaultSessionTokens !== null) {
+      await this.renderKeyVault();
+    }
+
+    // reset and hide add item form
+    this.keyToAddFc.value = "";
+    this.ivToAddFc.value = "";
+    this.keyToAddDisplayNameFc.value = "";
+    this.addItemPasswordFc.value = "";
+    this.algorithmToAddFc.value = this.selectDefaultAlgorithm.value;
+    this.filePathToAddFc.value = "";
+    this.addVaultItemModel.hide();
   }
 }
-
-const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
 class ScrollToElementHelper {
   private _el: HTMLElement | null = null;
 
   public async scrollTo(selector: string, delayMs: number | null = null, pageHeaderHeight = 192) {
     if (delayMs !== null) {
-      await delay(delayMs);
+      await this.delay(delayMs);
     }
 
     this._el = this.findElement(selector);
@@ -983,7 +1102,7 @@ class ScrollToElementHelper {
     window.scrollBy({
       top: domRect.top - pageHeaderHeight,
       left: 0,
-      behavior: 'auto',
+      behavior: "auto",
     });
   }
 
@@ -997,9 +1116,6 @@ class ScrollToElementHelper {
   private findElement(selector: string): HTMLElement | null {
     return document.querySelector(selector);
   }
-}
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const app = new App(window.nKriptApi);
-  await app.init();
-});
+  private delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
+}

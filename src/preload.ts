@@ -1,27 +1,40 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld('nKriptApi', <NKriptApi>{
-  encryptFile: (algorithm, filePath, deleteOriginal) => ipcRenderer.invoke('encryptFile', [algorithm, filePath, deleteOriginal]),
+contextBridge.exposeInMainWorld("nKriptApi", <NKriptApi>{
+  encryptFile: (algorithm, filePath, deleteOriginal) => ipcRenderer.invoke("encryptFile", [algorithm, filePath, deleteOriginal]),
 
-  decryptFile: (algorithm, filePath, key, iv, deleteOriginal) => ipcRenderer.invoke('decryptFile', [algorithm, filePath, key, iv, deleteOriginal]),
+  decryptFile: (algorithm, filePath, key, iv, deleteOriginal) =>
+    ipcRenderer.invoke("decryptFile", [algorithm, filePath, key, iv, deleteOriginal]),
 
-  showItemInFolder: (filePath) => ipcRenderer.invoke('showItemInFolder', [filePath]),
+  showItemInFolder: (filePath) => ipcRenderer.invoke("showItemInFolder", [filePath]),
 
-  getAvailableCiphers: () => ipcRenderer.invoke('getAvailableCiphers'),
+  getAvailableCiphers: () => ipcRenderer.invoke("getAvailableCiphers"),
 
-  cipherRequiresIv: (cipher: string) => ipcRenderer.invoke('cipherRequiresIv', [cipher]),
+  cipherRequiresIv: (cipher: string) => ipcRenderer.invoke("cipherRequiresIv", [cipher]),
 
-  compileHandlebarsTemplate: <TData>(html: string, data: TData) => ipcRenderer.invoke('compileHandlebarsTemplate', [html, data]),
+  compileHandlebarsTemplate: <TData>(html: string, data: TData) => ipcRenderer.invoke("compileHandlebarsTemplate", [html, data]),
 
-  startKeyVaultSession: (masterPassword: string) => ipcRenderer.invoke('startKeyVaultSession', [masterPassword]),
+  startKeyVaultSession: (masterPassword: string) => ipcRenderer.invoke("startKeyVaultSession", [masterPassword]),
 
-  endKeyVaulSession: () => ipcRenderer.invoke('endKeyVaulSession'),
+  refreshVaultSession: (oldTokens: VaultSessionTokens) => ipcRenderer.invoke("refreshVaultSession", [oldTokens]),
 
-  getSecrets: (accessToken: string) => ipcRenderer.invoke('getSecrets', [accessToken]),
+  endKeyVaultSession: () => ipcRenderer.invoke("endKeyVaultSession"),
 
-  getSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke('getSecret', [secretId, accessToken]),
+  updateMasterPassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke("updateMasterPassword", [oldPassword, newPassword]),
 
-  deleteSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke('deleteSecret', [secretId, accessToken]),
+  getSecrets: (accessToken: string) => ipcRenderer.invoke("getSecrets", [accessToken]),
 
-  addSecret: (masterPassword: string, accessToken: string, displayName: string, algorithm: string, key: string, iv: string, filePath: string = undefined) => ipcRenderer.invoke('addSecret', [masterPassword, accessToken, displayName, algorithm, key, iv, filePath])
+  getSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke("getSecret", [secretId, accessToken]),
+
+  deleteSecret: (secretId: number, accessToken: string) => ipcRenderer.invoke("deleteSecret", [secretId, accessToken]),
+
+  addSecret: (
+    masterPassword: string,
+    displayName: string,
+    algorithm: string,
+    key: string,
+    iv: string,
+    filePath?: string,
+    accessToken?: string
+  ) => ipcRenderer.invoke("addSecret", [masterPassword, displayName, algorithm, key, iv, filePath, accessToken]),
 });

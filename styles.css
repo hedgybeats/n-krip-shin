@@ -55,7 +55,7 @@ body.fancy-scrollbar::-webkit-scrollbar-thumb {
 
 .grid-container {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 50% 50%;
   padding: 1rem 1.5rem 0rem 1.5rem;
   margin-right: 5rem !important;
   margin-left: 5rem !important;

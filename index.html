@@ -1,641 +1,1004 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>N-KRIPT</title>
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net"
+    />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>N-KRIPT</title>
-  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; img-src 'self' data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net" />
-  <meta http-equiv="X-Content-Security-Policy"
-    content="default-src 'self'; img-src 'self' data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net" />
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-
-<body class="bg-dark fancy-scrollbar">
-  <!-- banner -->
-  <div id="banner" class="bg-dark-shade-1 pb-2 pt-3">
-    <h1 class="mb-4 text-center text-light">N<span class="text-success">-KRIPT</span></h1>
-    <div class="d-flex justify-content-center mb-4">
-      <object data="./src/assets/svgs/secure-files.svg" type="image/svg+xml"></object>
-    </div>
-  </div>
-  <div id="content" class="d-flex flex-column justify-content-between w-100">
-    <!-- main content -->
-    <div class="mt-3">
-      <!-- encrypt/decrypt buttons -->
-      <div class="w-100 d-flex justify-content-center align-items-center mb-2">
-        <div class="btn-group" role="group" aria-label="App buttons">
-          <button id="encrypt-btn" class="btn btn-success btn-sm my-2 ms-2 px-3 py-2" type="button">
-            <div class="d-flex align-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" fill="currentColor"
-                class="bi bi-shield-lock text-light" viewBox="0 0 16 16">
-                <path
-                  d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z" />
-                <path
-                  d="M9.5 6.5a1.5 1.5 0 0 1-1 1.415l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99a1.5 1.5 0 1 1 2-1.415z" />
-              </svg>
-              <span class="ms-2">Encrypt</span>
-            </div>
-          </button>
-          <button id="decrypt-btn" class="btn btn-secondary btn-sm my-2 me-2 px-3 py-2" type="button">
-            <div class="d-flex align-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" fill="currentColor"
-                class="bi bi-unlock text-light" viewBox="0 0 16 16">
-                <path
-                  d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z" />
-              </svg>
-              <span class="ms-2">Decrypt</span>
-            </div>
-          </button>
-        </div>
-      </div>
-      <!-- encrypt section -->
-      <div id="encryption-container">
-        <!-- select algorithm -->
-        <div id="select-encrypt-algorithm-container" class="d-flex justify-content-center">
-          <div class="mb-3 w-50">
-            <label for="select-encrypt-algorithm" class="form-label text-light">Algorithm</label>
-            <select id="select-encrypt-algorithm" class="form-select form-select-sm bg-dark text-light cursor-pointer"
-              aria-label=".form-select-sm example">
-              <option disabled selected>Encryption algorithm</option>
-              <!-- options to be inserted here -->
-            </select>
-          </div>
-        </div>
-        <div id="select-encrypt-algorithm-error" class="error"></div>
-
-        <!-- select file -->
-        <div id="encryption-input-container" class="input-container my-4">
-          <input type="file" id="encryption-input" title="" />
-          <label for="encryption-input" class="cursor-pointer">Select file</label>
-        </div>
-        <!-- selected file -->
-        <div id="encryption-input-selected-file-container" class="d-none mt-3 w-100">
-          <div class="w-100 d-flex justify-content-center">
-            <div
-              class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2">
-              <div class="d-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem" fill="currentColor"
-                  class="bi bi-file-earmark-text-fill text-warning me-2" viewBox="0 0 16 16">
-                  <path
-                    d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z" />
-                </svg>
-                <div class="overflow-break">
-                  <h4 id="encryption-input-selected-file-name" class="file-name text-success overflow-break"></h4>
-                  <p id="encryption-input-selected-file-size" class="file-size text-secondary"></p>
-                </div>
-              </div>
-              <button id="encrypt-remove-file" class="un-style">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.75rem" height="1.75rem" fill="currentColor"
-                  class="bi bi-x-circle ms-3 text-danger" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                  <path
-                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <!-- must delete source file -->
-          <div id="delete-after-encrypt-container" class="d-flex justify-content-center">
-            <div class="form-check my-4">
-              <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value=""
-                id="delete-after-encrypt" />
-              <label class="form-check-label text-light cursor-pointer" for="delete-after-encrypt">
-                <small>Delete file after encryption</small>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- start button -->
-        <div id="start-encrypting-container" class="d-flex justify-content-center my-3 d-none">
-          <button id="start-encrypting" class="btn btn-success">
-            <div class="d-flex align-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-                class="bi bi-check2-circle text-light" viewBox="0 0 16 16">
-                <path
-                  d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
-                <path
-                  d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
-              </svg>
-              <span class="ms-2 text-light">Start</span>
-            </div>
-          </button>
-        </div>
-
-        <!-- error -->
-        <div class="d-flex w-100 justify-content-center">
-          <div id="encrypt-error" class="error w-75 text-center"></div>
-        </div>
-
-        <!-- spinner -->
-        <div class="d-flex justify-content-center">
-          <span id="encryption-spinner" class="loader d-none my-4"></span>
-        </div>
-
-        <!-- encryption result -->
-        <div id="encrypt-results" class="d-none">
-          <h3 class="text-center text-success mt-3 mb-0">Success!</h3>
-          <div class="d-flex justify-content-center mt-1 mb-3">
-            <small id="encrypt-duration" class="text-center text-secondary"></small>
-          </div>
-
-          <!-- encryption result details -->
-          <div class="w-100 d-flex justify-content-center">
-            <div
-              class="w-75 d-flex overflow-break justify-content-center align-items-center bg-dark-shade-1 rounded shadow py-2 ps-4 pe-2">
-              <div class="d-flex align-items-center">
-                <div class="pe-4 w-100 overflow-break">
-                  <div class="text-light overflow-break" id="encrypted-key"></div>
-                  <div class="text-light overflow-break" id="encrypted-iv"></div>
-                  <div class="text-light overflow-break" id="encrypted-algorithm"></div>
-                  <div class="text-light overflow-break" id="encrypted-path"></div>
-                </div>
-
-                <!-- copy to clipboard buttons -->
-                <button id="clipboard-btn" class="btn unstyle" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-clipboard text-warning" viewBox="0 0 16 16">
-                    <path
-                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                    <path
-                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                  </svg>
-                </button>
-                <button id="clipboard-check" class="btn unstyle d-none" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-clipboard-check text-success" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                      d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
-                    <path
-                      d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                    <path
-                      d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="w-100 d-flex justify-content-center my-4">
-            <div class="w-75 alert alert-danger py-2 px-4 mx-2 mb-0 text-center">Keep these values safe! Without them
-              you will not be able to decrypt the file.</div>
-          </div>
-
-          <!-- startover button -->
-          <div class="d-flex justify-content-center">
-            <button id="startover-encrypt-btn" class="btn btn-success">
-              <div class="d-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-                  class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
-                  <path
-                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
-                </svg>
-                <span class="ms-2">Start over</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-      <!-- decrypt section -->
-      <div id="decryption-container" class="d-none w-100">
-        <!-- key fc -->
-        <div id="key-fc-container" class="w-100 d-flex justify-content-center">
-          <div class="mb-3 w-50">
-            <label for="keyFc" class="form-label text-light">Key</label>
-            <input required type="text" class="form-control form-control-sm bg-dark text-light" spellcheck="false"
-              id="keyFc" placeholder="Enter an encryption key." />
-          </div>
-        </div>
-        <div id="keyFc-error" class="error"></div>
-
-        <!-- iv fc -->
-        <div id="iv-fc-container" class="w-100 d-flex justify-content-center">
-          <div class="mb-3 w-50">
-            <label for="ivFc" class="form-label text-light">IV</label>
-            <input type="text" spellcheck="false" class="form-control form-control-sm bg-dark text-light" id="ivFc"
-              placeholder="Enter an encryption IV." />
-          </div>
-        </div>
-        <div id="ivFc-error" class="error"></div>
-
-        <!-- select algorithm -->
-        <div id="select-decrypt-algorithm-container" class="w-100 d-flex justify-content-center">
-          <div class="mb-3 w-50">
-            <label for="select-decrypt-algorithm" class="form-label text-light">Algorithm</label>
-            <select id="select-decrypt-algorithm" class="form-select form-select-sm bg-dark text-light cursor-pointer"
-              aria-label=".form-select-sm example">
-              <option disabled selected>Decryption algorithm</option>
-              <!-- options to be inserted here -->
-            </select>
-          </div>
-        </div>
-        <div id="select-decrypt-algorithm-error" class="error"></div>
-
-        <!-- select file -->
-        <div id="decryption-input-container" class="input-container my-4">
-          <input type="file" id="decryption-input" title="" />
-          <label for="decryption-input" class="cursor-pointer">Select file</label>
-        </div>
-        <!-- selected file -->
-        <div id="decryption-input-selected-file-container" class="d-none mt-3 w-100">
-          <div class="w-100 d-flex justify-content-center">
-            <div
-              class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2">
-              <div class="d-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem" fill="currentColor"
-                  class="bi bi-file-earmark-text-fill text-warning me-2" viewBox="0 0 16 16">
-                  <path
-                    d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z" />
-                </svg>
-                <div class="overflow-break">
-                  <h4 id="decryption-input-selected-file-name" class="file-name text-success overflow-break"></h4>
-                  <p id="decryption-input-selected-file-size" class="file-size text-secondary overflow-break"></p>
-                </div>
-              </div>
-              <button id="decrypt-remove-file" class="un-style">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.75rem" height="1.75rem" fill="currentColor"
-                  class="bi bi-x-circle ms-3 text-danger" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                  <path
-                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- delete source file -->
-          <div id="delete-after-decrypt-container" class="d-flex justify-content-center">
-            <div class="form-check my-4">
-              <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value=""
-                id="delete-after-decrypt" />
-              <label class="form-check-label text-light cursor-pointer" for="delete-after-decrypt">
-                <small>Delete file after decryption</small>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- start button -->
-        <div id="start-decrypting-container" class="d-flex justify-content-center my-3 d-none">
-          <button id="start-decrypting" class="btn btn-success">
-            <div class="d-flex align-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-                class="bi bi-check2-circle text-light" viewBox="0 0 16 16">
-                <path
-                  d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
-                <path
-                  d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
-              </svg>
-              <span class="ms-2 text-light">Start</span>
-            </div>
-          </button>
-        </div>
-
-        <!-- error -->
-        <div class="d-flex w-100 justify-content-center">
-          <div id="decrypt-error" class="error w-75 text-center"></div>
-        </div>
-
-        <!-- spinner -->
-        <div class="d-flex justify-content-center">
-          <span id="decryption-spinner" class="loader d-none my-4"></span>
-        </div>
-
-        <!-- decryption result -->
-        <div id="decrypt-results" class="d-none">
-          <h3 class="text-center text-success mt-3 mb-0">Success!</h3>
-          <div class="d-flex justify-content-center mt-1 mb-3">
-            <small id="decrypt-duration" class="text-center text-secondary"></small>
-          </div>
-
-          <!-- decryption result details -->
-          <div class="w-100 d-flex justify-content-center mb-4">
-            <div class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow p-4">
-              <div class="overflow-break">
-                <div class="text-light text-center" id="decrypted-path"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- startover button -->
-          <div class="d-flex justify-content-center">
-            <button id="startover-decrypt-btn" class="btn btn-success">
-              <div class="d-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-                  class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
-                  <path
-                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
-                </svg>
-                <span class="ms-2">Start over</span>
-              </div>
-            </button>
-          </div>
-        </div>
+  <body class="bg-dark fancy-scrollbar">
+    <!-- banner -->
+    <div id="banner" class="bg-dark-shade-1 pb-2 pt-3">
+      <h1 class="mb-4 text-center text-light">N<span class="text-success">-KRIPT</span></h1>
+      <div class="d-flex justify-content-center mb-4">
+        <object data="./src/assets/svgs/secure-files.svg" type="image/svg+xml"></object>
       </div>
     </div>
-
-    <!-- bottom of page -->
-    <div>
-      <!-- secret vault -->
-      <div class="collapse" id="collapseSecretVault">
-        <div class="shadow text-light mt-4">
-          <div id="key-vault-header" class="fs-4 mb-3">
-            <div class="d-flex justify-content-end pe-4 mt-1">
-              <div class="dropdown">
-                <button class="un-style" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-                    class="bi bi-three-dots text-light" viewBox="0 0 16 16">
-                    <path
-                      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
-                  </svg>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                  <li>
-                    <button id="add-vault-item" class="dropdown-item d-flex align-items-center" type="button"
-                      data-bs-toggle="modal" data-bs-target="#addVaultItemModel">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
-                        class="bi bi-database-add text-success" viewBox="0 0 16 16">
-                        <path
-                          d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Z" />
-                        <path
-                          d="M12.096 6.223A4.92 4.92 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.493 4.493 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.525 4.525 0 0 1-.813-.927C8.5 14.992 8.252 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.552 4.552 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10c.262 0 .52-.008.774-.024a4.525 4.525 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777ZM3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4Z" />
-                      </svg>
-                      <span class="text-light ms-3">Add item</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button id="update-master-password" class="dropdown-item d-flex align-items-center" type="button">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
-                        class="bi bi-key text-success" viewBox="0 0 16 16">
-                        <path
-                          d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
-                        <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                      </svg>
-                      <span class="text-light ms-3">Update master password</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button id="close-vault" class="dropdown-item d-flex align-items-center" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseSecretVault" aria-expanded="false"
-                      aria-controls="collapseSecretVault">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
-                        class="bi bi-box-arrow-left text-success" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                          d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
-                        <path fill-rule="evenodd"
-                          d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
-                      </svg>
-                      <span class="text-light ms-3">Exit vault</span>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="2.85rem" height="2.85rem" fill="currentColor"
-                  class="bi bi-incognito text-success" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                    d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z" />
-                </svg>
-              </div>
-              <h4 class="text-center text-light">Key Vault</h4>
-            </div>
-          </div>
-          <div id="key-vault-login-container">
-            <!-- key vault password -->
-            <div class="w-100 d-flex justify-content-center">
-              <div class="mb-3 w-50">
-                <label for="keyVaultPasswordFc" class="form-label text-light">Password</label>
-                <input required type="password" class="form-control form-control-sm bg-dark text-light"
-                  spellcheck="false" id="keyVaultPasswordFc" placeholder="Enter your master password." />
-              </div>
-            </div>
-            <div id="keyVaultPasswordFc-error" class="error mb-2"></div>
-            <!-- enter vault -->
-            <div class="d-flex justify-content-center">
-              <button id="key-vault-login" class="btn btn-success mb-4">
-                <div class="d-flex align-items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" fill="currentColor"
-                    class="bi bi-door-open TEXT-LIGHT" viewBox="0 0 16 16">
-                    <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z" />
-                    <path
-                      d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5zM4 1.934V15h6V1.077l-6 .857z" />
-                  </svg>
-                  <span class="ms-2 text-light">Enter</span>
-                </div>
-              </button>
-            </div>
-            <!-- key vault warning -->
-          </div>
-          <div class="w-100 d-flex justify-content-center">
-            <div class="alert alert-warning alert-dismissible fade show mx-5 mb-3 w-50" role="alert">
-              <div>Use the key vault at your own <strong>risk</strong>!</div>
-              <div>If your master password is compromised, anyone can use it to access your key vault.</div>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
-                aria-label="Close"></button>
-            </div>
-          </div>
-          <div id="vault-body" class="pb-2"></div>
-        </div>
-      </div>
-
-      <!-- footer -->
+    <div id="content" class="d-flex flex-column justify-content-between w-100">
+      <!-- main content -->
       <div class="mt-3">
-        <!-- trigger modals -->
-        <div class="d-flex justify-content-between align-items-center mb-3 mx-4">
-          <button type="button" class="un-style cursor-pointer" data-bs-toggle="modal" data-bs-target="#settingsModal">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" fill="currentColor"
-              class="bi bi-gear text-light green-hover" viewBox="0 0 16 16">
-              <path
-                d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-              <path
-                d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-            </svg>
-          </button>
-          <button id="open-vault" class="un-style cursor-pointer" type="button" data-bs-toggle="collapse"
-            data-bs-target="#collapseSecretVault" aria-expanded="false" aria-controls="collapseSecretVault">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor"
-              class="bi bi-incognito text-light green-hover" viewBox="0 0 16 16">
-              <path fill-rule="evenodd"
-                d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z" />
-            </svg>
-          </button>
-          <button type="button" class="un-style cursor-pointer" data-bs-toggle="modal" data-bs-target="#helpModal">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" fill="currentColor"
-              class="bi bi-question-circle text-light green-hover" viewBox="0 0 16 16">
-              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-              <path
-                d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z" />
-            </svg>
-          </button>
+        <!-- encrypt/decrypt buttons -->
+        <div class="w-100 d-flex justify-content-center align-items-center mb-2">
+          <div class="btn-group" role="group" aria-label="App buttons">
+            <button id="encrypt-btn" class="btn btn-success btn-sm my-2 ms-2 px-3 py-2" type="button">
+              <div class="d-flex align-items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1rem"
+                  height="1rem"
+                  fill="currentColor"
+                  class="bi bi-shield-lock text-light"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"
+                  />
+                  <path
+                    d="M9.5 6.5a1.5 1.5 0 0 1-1 1.415l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99a1.5 1.5 0 1 1 2-1.415z"
+                  />
+                </svg>
+                <span class="ms-2">Encrypt</span>
+              </div>
+            </button>
+            <button id="decrypt-btn" class="btn btn-secondary btn-sm my-2 me-2 px-3 py-2" type="button">
+              <div class="d-flex align-items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1rem"
+                  height="1rem"
+                  fill="currentColor"
+                  class="bi bi-unlock text-light"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"
+                  />
+                </svg>
+                <span class="ms-2">Decrypt</span>
+              </div>
+            </button>
+          </div>
+        </div>
+        <!-- encrypt section -->
+        <div id="encryption-container">
+          <!-- select algorithm -->
+          <div id="select-encrypt-algorithm-container" class="d-flex justify-content-center">
+            <div class="mb-3 w-50">
+              <label for="select-encrypt-algorithm" class="form-label text-light">Algorithm</label>
+              <select
+                id="select-encrypt-algorithm"
+                class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                aria-label=".form-select-sm example"
+              >
+                <option disabled selected>Encryption algorithm</option>
+                <!-- options to be inserted here -->
+              </select>
+            </div>
+          </div>
+          <div id="select-encrypt-algorithm-error" class="error"></div>
+
+          <!-- select file -->
+          <div id="encryption-input-container" class="input-container my-4">
+            <input type="file" id="encryption-input" title="" />
+            <label for="encryption-input" class="cursor-pointer">Select file</label>
+          </div>
+          <!-- selected file -->
+          <div id="encryption-input-selected-file-container" class="d-none mt-3 w-100">
+            <div class="w-100 d-flex justify-content-center">
+              <div class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="2rem"
+                    height="2rem"
+                    fill="currentColor"
+                    class="bi bi-file-earmark-text-fill text-warning me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
+                    />
+                  </svg>
+                  <div class="overflow-break">
+                    <h4 id="encryption-input-selected-file-name" class="file-name text-success overflow-break"></h4>
+                    <p id="encryption-input-selected-file-size" class="file-size text-secondary"></p>
+                  </div>
+                </div>
+                <button id="encrypt-remove-file" class="un-style">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1.75rem"
+                    height="1.75rem"
+                    fill="currentColor"
+                    class="bi bi-x-circle ms-3 text-danger"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                    <path
+                      d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <!-- must delete source file -->
+            <div id="delete-after-encrypt-container" class="d-flex justify-content-center">
+              <div class="form-check my-4">
+                <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value="" id="delete-after-encrypt" />
+                <label class="form-check-label text-light cursor-pointer" for="delete-after-encrypt">
+                  <small>Delete file after encryption</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- start button -->
+          <div id="start-encrypting-container" class="d-flex justify-content-center my-3 d-none">
+            <button id="start-encrypting" class="btn btn-success">
+              <div class="d-flex align-items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1.5rem"
+                  height="1.5rem"
+                  fill="currentColor"
+                  class="bi bi-check2-circle text-light"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
+                  <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
+                </svg>
+                <span class="ms-2 text-light">Start</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- error -->
+          <div class="d-flex w-100 justify-content-center">
+            <div id="encrypt-error" class="error w-75 text-center"></div>
+          </div>
+
+          <!-- spinner -->
+          <div class="d-flex justify-content-center">
+            <span id="encryption-spinner" class="loader d-none my-4"></span>
+          </div>
+
+          <!-- encryption result -->
+          <div id="encrypt-results" class="d-none">
+            <h3 class="text-center text-success mt-3 mb-0">Success!</h3>
+            <div class="d-flex justify-content-center mt-1 mb-3">
+              <small id="encrypt-duration" class="text-center text-secondary"></small>
+            </div>
+
+            <!-- encryption result details -->
+            <div class="w-100 d-flex justify-content-center">
+              <div
+                class="w-75 d-flex overflow-break justify-content-center align-items-center bg-dark-shade-1 rounded shadow py-2 ps-4 pe-2"
+              >
+                <div class="d-flex align-items-center">
+                  <div class="pe-4 w-100 overflow-break">
+                    <div class="text-light overflow-break" id="encrypted-key"></div>
+                    <div class="text-light overflow-break" id="encrypted-iv"></div>
+                    <div class="text-light overflow-break" id="encrypted-algorithm"></div>
+                    <div class="text-light overflow-break" id="encrypted-path"></div>
+                  </div>
+
+                  <!-- copy to clipboard buttons -->
+                  <button id="clipboard-btn" class="btn unstyle" type="button">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-clipboard text-warning"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                      />
+                      <path
+                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                      />
+                    </svg>
+                  </button>
+                  <button id="clipboard-check" class="btn unstyle d-none" type="button">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-clipboard-check text-success"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"
+                      />
+                      <path
+                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                      />
+                      <path
+                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="w-100 d-flex justify-content-center my-4">
+              <div class="w-75 alert alert-danger py-2 px-4 mx-2 mb-0 text-center">
+                Keep these values safe! Without them you will not be able to decrypt the file.
+              </div>
+            </div>
+
+            <!-- startover button -->
+            <div class="d-flex justify-content-center">
+              <button id="startover-encrypt-btn" class="btn btn-success">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1.5rem"
+                    height="1.5rem"
+                    fill="currentColor"
+                    class="bi bi-arrow-counterclockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
+                    <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
+                  </svg>
+                  <span class="ms-2">Start over</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- decrypt section -->
+        <div id="decryption-container" class="d-none w-100">
+          <!-- key fc -->
+          <div id="key-fc-container" class="w-100 d-flex justify-content-center">
+            <div class="mb-3 w-50">
+              <label for="keyFc" class="form-label text-light">Key</label>
+              <input
+                required
+                type="text"
+                class="form-control form-control-sm bg-dark text-light"
+                spellcheck="false"
+                id="keyFc"
+                placeholder="Enter an encryption key."
+              />
+            </div>
+          </div>
+          <div id="keyFc-error" class="error"></div>
+
+          <!-- iv fc -->
+          <div id="iv-fc-container" class="w-100 d-flex justify-content-center">
+            <div class="mb-3 w-50">
+              <label for="ivFc" class="form-label text-light">IV</label>
+              <input
+                type="text"
+                spellcheck="false"
+                class="form-control form-control-sm bg-dark text-light"
+                id="ivFc"
+                placeholder="Enter an encryption IV."
+              />
+            </div>
+          </div>
+          <div id="ivFc-error" class="error"></div>
+
+          <!-- select algorithm -->
+          <div id="select-decrypt-algorithm-container" class="w-100 d-flex justify-content-center">
+            <div class="mb-3 w-50">
+              <label for="select-decrypt-algorithm" class="form-label text-light">Algorithm</label>
+              <select
+                id="select-decrypt-algorithm"
+                class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                aria-label=".form-select-sm example"
+              >
+                <option disabled selected>Decryption algorithm</option>
+                <!-- options to be inserted here -->
+              </select>
+            </div>
+          </div>
+          <div id="select-decrypt-algorithm-error" class="error"></div>
+
+          <!-- select file -->
+          <div id="decryption-input-container" class="input-container my-4">
+            <input type="file" id="decryption-input" title="" />
+            <label for="decryption-input" class="cursor-pointer">Select file</label>
+          </div>
+          <!-- selected file -->
+          <div id="decryption-input-selected-file-container" class="d-none mt-3 w-100">
+            <div class="w-100 d-flex justify-content-center">
+              <div class="d-flex justify-content-between align-items-center w-50 overflow-break rounded shadow bg-dark-shade-1 p-2">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="2rem"
+                    height="2rem"
+                    fill="currentColor"
+                    class="bi bi-file-earmark-text-fill text-warning me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"
+                    />
+                  </svg>
+                  <div class="overflow-break">
+                    <h4 id="decryption-input-selected-file-name" class="file-name text-success overflow-break"></h4>
+                    <p id="decryption-input-selected-file-size" class="file-size text-secondary overflow-break"></p>
+                  </div>
+                </div>
+                <button id="decrypt-remove-file" class="un-style">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1.75rem"
+                    height="1.75rem"
+                    fill="currentColor"
+                    class="bi bi-x-circle ms-3 text-danger"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                    <path
+                      d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- delete source file -->
+            <div id="delete-after-decrypt-container" class="d-flex justify-content-center">
+              <div class="form-check my-4">
+                <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value="" id="delete-after-decrypt" />
+                <label class="form-check-label text-light cursor-pointer" for="delete-after-decrypt">
+                  <small>Delete file after decryption</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- start button -->
+          <div id="start-decrypting-container" class="d-flex justify-content-center my-3 d-none">
+            <button id="start-decrypting" class="btn btn-success">
+              <div class="d-flex align-items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1.5rem"
+                  height="1.5rem"
+                  fill="currentColor"
+                  class="bi bi-check2-circle text-light"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
+                  <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
+                </svg>
+                <span class="ms-2 text-light">Start</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- error -->
+          <div class="d-flex w-100 justify-content-center">
+            <div id="decrypt-error" class="error w-75 text-center"></div>
+          </div>
+
+          <!-- spinner -->
+          <div class="d-flex justify-content-center">
+            <span id="decryption-spinner" class="loader d-none my-4"></span>
+          </div>
+
+          <!-- decryption result -->
+          <div id="decrypt-results" class="d-none">
+            <h3 class="text-center text-success mt-3 mb-0">Success!</h3>
+            <div class="d-flex justify-content-center mt-1 mb-3">
+              <small id="decrypt-duration" class="text-center text-secondary"></small>
+            </div>
+
+            <!-- decryption result details -->
+            <div class="w-100 d-flex justify-content-center mb-4">
+              <div class="w-75 d-flex justify-content-center align-items-center bg-dark-shade-1 rounded shadow p-4">
+                <div class="overflow-break">
+                  <div class="text-light text-center" id="decrypted-path"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- startover button -->
+            <div class="d-flex justify-content-center">
+              <button id="startover-decrypt-btn" class="btn btn-success">
+                <div class="d-flex align-items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1.5rem"
+                    height="1.5rem"
+                    fill="currentColor"
+                    class="bi bi-arrow-counterclockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
+                    <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
+                  </svg>
+                  <span class="ms-2">Start over</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom of page -->
+      <div>
+        <!-- secret vault -->
+        <div class="collapse" id="collapseSecretVault">
+          <div class="shadow text-light mt-4">
+            <div id="key-vault-header" class="fs-4 mb-3">
+              <div class="d-flex justify-content-end pe-4 mt-1">
+                <div class="dropdown">
+                  <button class="un-style green-hover scale-on-hover" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1.5rem"
+                      height="1.5rem"
+                      fill="currentColor"
+                      class="bi bi-list text-center"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+                      />
+                    </svg>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                    <li>
+                      <button
+                        id="add-vault-item"
+                        class="dropdown-item d-flex align-items-center"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addVaultItemModel"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1.3rem"
+                          height="1.3rem"
+                          fill="currentColor"
+                          class="bi bi-database-add text-success"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Z"
+                          />
+                          <path
+                            d="M12.096 6.223A4.92 4.92 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.493 4.493 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.525 4.525 0 0 1-.813-.927C8.5 14.992 8.252 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.552 4.552 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10c.262 0 .52-.008.774-.024a4.525 4.525 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777ZM3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4Z"
+                          />
+                        </svg>
+                        <span class="text-light ms-3">Add item</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        id="update-master-password"
+                        class="dropdown-item d-flex align-items-center"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#changeMasterPasswordModel"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1.3rem"
+                          height="1.3rem"
+                          fill="currentColor"
+                          class="bi bi-key text-success"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"
+                          />
+                          <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                        </svg>
+                        <span class="text-light ms-3">Update master password</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        id="close-vault"
+                        class="dropdown-item d-flex align-items-center"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseSecretVault"
+                        aria-expanded="false"
+                        aria-controls="collapseSecretVault"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1.3rem"
+                          height="1.3rem"
+                          fill="currentColor"
+                          class="bi bi-arrow-bar-down text-success"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"
+                          />
+                        </svg>
+                        <span class="text-light ms-3">Close vault</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="2.85rem"
+                    height="2.85rem"
+                    fill="currentColor"
+                    class="bi bi-incognito text-success"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"
+                    />
+                  </svg>
+                </div>
+                <h4 class="text-center text-light">Key Vault</h4>
+              </div>
+            </div>
+            <div id="key-vault-login-container">
+              <!-- key vault password -->
+              <div class="w-100 d-flex justify-content-center">
+                <div class="mb-3 w-50">
+                  <label for="keyVaultPasswordFc" class="form-label text-light">Password</label>
+                  <input
+                    required
+                    type="password"
+                    class="form-control form-control-sm bg-dark text-light"
+                    spellcheck="false"
+                    id="keyVaultPasswordFc"
+                    placeholder="Enter your master password."
+                  />
+                </div>
+              </div>
+              <div id="keyVaultPasswordFc-error" class="error mb-2"></div>
+              <!-- enter vault -->
+              <div class="d-flex justify-content-center">
+                <button id="key-vault-login" class="btn btn-success mb-4">
+                  <div class="d-flex align-items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1rem"
+                      height="1rem"
+                      fill="currentColor"
+                      class="bi bi-door-open TEXT-LIGHT"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z" />
+                      <path
+                        d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5zM4 1.934V15h6V1.077l-6 .857z"
+                      />
+                    </svg>
+                    <span class="ms-2 text-light">Enter</span>
+                  </div>
+                </button>
+              </div>
+              <!-- key vault warning -->
+            </div>
+            <div class="w-100 d-flex justify-content-center">
+              <div class="alert alert-warning alert-dismissible fade show mx-5 mb-3 w-50" role="alert">
+                <div>Use the key vault at your own <strong>risk</strong>!</div>
+                <div>If your master password is compromised, anyone can use it to access your key vault.</div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            </div>
+            <div id="vault-body" class="pb-2"></div>
+          </div>
         </div>
 
-        <!-- add vault item modal -->
-        <div class="modal fade" id="addVaultItemModel" tabindex="-1" aria-labelledby="addVaultItemModelLabel"
-          aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-              <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-4 text-light d-flex align-items-center " id="addVaultItemModelLabel">
-                  <span class="me-2">Add vault item</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-database-add text-success" viewBox="0 0 16 16">
-                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Z"/>
-                    <path d="M12.096 6.223A4.92 4.92 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.493 4.493 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.525 4.525 0 0 1-.813-.927C8.5 14.992 8.252 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.552 4.552 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10c.262 0 .52-.008.774-.024a4.525 4.525 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777ZM3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4Z"/>
-                  </svg>
-                </h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                  aria-label="Close"></button>
-              </div>
-              <div class="modal-body bg-dark text-light p-4">
+        <!-- footer -->
+        <div class="mt-3">
+          <!-- trigger modals -->
+          <div class="d-flex justify-content-between align-items-center mb-3 mx-4">
+            <button type="button" class="un-style cursor-pointer" data-bs-toggle="modal" data-bs-target="#settingsModal">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.25rem"
+                height="1.25rem"
+                fill="currentColor"
+                class="bi bi-gear text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"
+                />
+                <path
+                  d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"
+                />
+              </svg>
+            </button>
+            <button
+              id="open-vault"
+              class="un-style cursor-pointer"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseSecretVault"
+              aria-expanded="false"
+              aria-controls="collapseSecretVault"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.5rem"
+                height="1.5rem"
+                fill="currentColor"
+                class="bi bi-arrow-bar-up text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"
+                />
+              </svg>
+            </button>
+            <button type="button" class="un-style cursor-pointer" data-bs-toggle="modal" data-bs-target="#helpModal">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.25rem"
+                height="1.25rem"
+                fill="currentColor"
+                class="bi bi-question-circle text-light green-hover scale-on-hover"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path
+                  d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- add vault item modal -->
+          <div
+            class="modal fade"
+            id="addVaultItemModel"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            tabindex="-1"
+            aria-labelledby="addVaultItemModelLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1 class="modal-title fs-4 text-light d-flex align-items-center" id="addVaultItemModelLabel">
+                    <span class="me-3">Add vault item</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1.5rem"
+                      height="1.5rem"
+                      fill="currentColor"
+                      class="bi bi-database-add text-success"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Z"
+                      />
+                      <path
+                        d="M12.096 6.223A4.92 4.92 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.493 4.493 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.525 4.525 0 0 1-.813-.927C8.5 14.992 8.252 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.552 4.552 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10c.262 0 .52-.008.774-.024a4.525 4.525 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777ZM3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4Z"
+                      />
+                    </svg>
+                  </h1>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-dark text-light p-4">
+                  <div class="mb-3 w-100">
+                    <label for="keyToAddDisplayNameFc" class="form-label text-light">Display Name</label>
+                    <input
+                      required
+                      type="text"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="keyToAddDisplayNameFc"
+                      placeholder="Enter a display name."
+                    />
+                  </div>
                   <div class="mb-3 w-100">
                     <label for="keyToAddFc" class="form-label text-light">Key</label>
-                    <input required type="text" class="form-control form-control-sm bg-dark text-light"
-                      spellcheck="false" id="keyToAddFc" placeholder="Enter a key you would like to store." />
+                    <input
+                      required
+                      type="text"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="keyToAddFc"
+                      placeholder="Enter a key you would like to store."
+                    />
                   </div>
                   <div class="mb-3 w-100">
-                    <label for="ivToAddFc" class="form-label text-light">IV</label>
-                    <input required type="password" class="form-control form-control-sm bg-dark text-light"
-                      spellcheck="false" id="ivToAddFc" placeholder="Enter an IV you would like to store." />
+                    <label for="ivToAddFc" class="form-label text-light">IV (optional)</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="ivToAddFc"
+                      placeholder="Enter an IV you would like to store."
+                    />
                   </div>
                   <div class="mb-3 w-100">
-                    <select id="select-algorithm-to-add"
-                    class="form-select form-select-sm bg-dark text-light cursor-pointer"
-                    aria-label=".form-select-sm example">
-                    <option selected>N/A</option>
-                    <!-- options to be inserted here -->
-                  </select>
+                    <label for="algorithmToAddFc" class="form-label text-light">Algorithm (optional)</label>
+                    <select
+                      id="algorithmToAddFc"
+                      class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                      aria-label=".form-select-sm example"
+                    >
+                      <option value="-1" selected>none</option>
+                      <!-- options to be inserted here -->
+                    </select>
                   </div>
+
+                  <div class="mb-3 w-100">
+                    <label for="filePathToAddFc" class="form-label text-light">File Path (optional)</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="filePathToAddFc"
+                      placeholder="Enter a file path for the location of the file you encrypted."
+                    />
+                  </div>
+                  <div class="mb-3 w-100">
+                    <label for="addItemPasswordFc" class="form-label text-light">Password</label>
+                    <input
+                      required
+                      type="password"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="addItemPasswordFc"
+                      placeholder="Enter your master password."
+                    />
+                  </div>
+                  <!-- <div class="mb-3 w-100">
+                      <label for="ivToAddFc" class="form-label text-light">IV</label>
+                      <input required type="password" class="form-control form-control-sm bg-dark text-light"
+                        spellcheck="false" id="ivToAddFc" placeholder="Enter an IV you would like to store." />
+                    </div> -->
+                  <!-- <div class="mb-3 w-100">
+                      <select id="select-algorithm-to-add"
+                      class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                      aria-label=".form-select-sm example">
+                      <option selected>N/A</option>
+                      options to be inserted here
+                    </select>
+                    </div> -->
+                  <div class="d-flex justify-content-end">
+                    <button id="addVaultItemBtn" class="btn btn-sm btn-success mt-3">Add</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- settings modal -->
-        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel"
-          aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-              <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-4 text-light" id="settingsModalLabel">
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                  settings
-                </h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                  aria-label="Close"></button>
-              </div>
-              <div class="modal-body bg-dark text-light p-4">
-                <div class="d-flex w-100 align-items-center">
-                  <h6 class="me-2 w-50">Prefered algorithm:</h6>
-                  <select id="select-default-algorithm"
-                    class="form-select form-select-sm bg-dark text-light cursor-pointer"
-                    aria-label=".form-select-sm example">
-                    <option disabled selected>Prefered algorithm</option>
-                    <!-- options to be inserted here -->
-                  </select>
+          <!-- change vault master password -->
+          <div
+            class="modal fade"
+            id="changeMasterPasswordModel"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            tabindex="-1"
+            aria-labelledby="changeMasterPasswordModelLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1 class="modal-title fs-4 text-light d-flex align-items-center" id="changeMasterPasswordModelLabel">
+                    <span class="me-3">Update master password</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1.75rem"
+                      height="1.75rem"
+                      fill="currentColor"
+                      class="bi bi-key text-success"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"
+                      />
+                      <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                    </svg>
+                  </h1>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="d-flex w-100 align-items-center mt-3">
-                  <h6 class="me-2 w-50">Default values:</h6>
-                  <div class="w-100">
-                    <div class="form-check">
-                      <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value=""
-                        id="default-delete-after-encrypt" />
-                      <label class="form-check-label text-light cursor-pointer" for="default-delete-after-encrypt">
-                        <small>Delete file after encryption</small>
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input green-checkbox cursor-pointer" type="checkbox" value=""
-                        id="default-delete-after-decrypt" />
-                      <label class="form-check-label text-light cursor-pointer" for="default-delete-after-decrypt">
-                        <small>Delete file after decryption</small>
-                      </label>
+                <div class="modal-body bg-dark text-light p-4">
+                  <div class="mb-3 w-100">
+                    <label for="updatePasswordOldPasswordFc" class="form-label text-light">Old password</label>
+                    <input
+                      required
+                      type="password"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="updatePasswordOldPasswordFc"
+                      placeholder="Enter your old master password."
+                    />
+                  </div>
+                  <div class="mb-4 w-100">
+                    <label for="updatePasswordNewPasswordFc" class="form-label text-light">New password</label>
+                    <input
+                      required
+                      type="password"
+                      class="form-control form-control-sm bg-dark text-light"
+                      spellcheck="false"
+                      id="updatePasswordNewPasswordFc"
+                      placeholder="Enter your new master password."
+                    />
+                  </div>
+                  <div class="alert alert-warning fade show mb-3" role="alert">
+                    <div>Updating the master password will close the vault.</div>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button id="changeMasterPasswordBtn" class="btn btn-sm btn-success mt-3">Update</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- settings modal -->
+          <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1 class="modal-title fs-4 text-light" id="settingsModalLabel">
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
+                    settings
+                  </h1>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-dark text-light p-4">
+                  <div class="d-flex w-100 align-items-center">
+                    <h6 class="me-2 w-50">Prefered algorithm:</h6>
+                    <select
+                      id="select-default-algorithm"
+                      class="form-select form-select-sm bg-dark text-light cursor-pointer"
+                      aria-label=".form-select-sm example"
+                    >
+                      <option disabled selected>Prefered algorithm</option>
+                      <!-- options to be inserted here -->
+                    </select>
+                  </div>
+                  <div class="d-flex w-100 align-items-center mt-3">
+                    <h6 class="me-2 w-50">Default values:</h6>
+                    <div class="w-100">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input green-checkbox cursor-pointer"
+                          type="checkbox"
+                          value=""
+                          id="default-delete-after-encrypt"
+                        />
+                        <label class="form-check-label text-light cursor-pointer" for="default-delete-after-encrypt">
+                          <small>Delete file after encryption</small>
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input green-checkbox cursor-pointer"
+                          type="checkbox"
+                          value=""
+                          id="default-delete-after-decrypt"
+                        />
+                        <label class="form-check-label text-light cursor-pointer" for="default-delete-after-decrypt">
+                          <small>Delete file after decryption</small>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- help Modal -->
-        <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-              <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
-                  Welcome to
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                </h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                  aria-label="Close"></button>
-              </div>
-              <div class="modal-body bg-dark text-light p-4">
-                <p>
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                  is a simple desktop application that allows you to encrypt and decrypt files.
-                </p>
-                <p>
-                  With
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>, you can protect your
-                  sensitive data from prying eyes, whether you're moving it through cloud services or just storing it on
-                  your computer.
-                </p>
-                <br />
-                <h5 class="mb-3 underline">Here's how it works:</h5>
-                <p>
-                  When you encrypt a file,
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                  generates an
-                  <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank"
-                    class="fst-italics">encryption key</a>
-                  and an
-                  <a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank"
-                    class="fst-italics">initialization vector (IV)</a>
-                  and gives them to you.
-                </p>
-                <div class="alert alert-danger text-center py-1 px-3 mt-2 mb-3">
-                  <small class="text-danger"> You <strong>MUST</strong> copy these values and store them somewhere safe,
-                    because you'll need them to decrypt the file later! </small>
+          <!-- help Modal -->
+          <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content bg-dark">
+                <div class="modal-header bg-dark">
+                  <h1 class="modal-title fs-4 text-light" id="helpModalLabel">
+                    Welcome to
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
+                  </h1>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <p class="mt-2">
-                  By default,
-                  <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
-                  uses the Advanced Encryption Standard (AES) algorithm to encrypt your files, which is a widely-used
-                  and trusted encryption standard.
-                </p>
-                <div class="alert alert-success text-center py-1 px-3 mt-2 mb-3">
-                  <small>
-                    The number of possible combinations of a 256-bit AES key is 2^256, which is an incredibly large
-                    number! To put it in perspective, the estimated number of atoms in the
-                    <strong>observable universe</strong> is around 10^80, which is much smaller than the number of
-                    possible combinations of a 256-bit key.
-                  </small>
-                </div>
-                <div class="d-flex justify-content-center align-items-center pt-4">
-                  <small>Made</small>
-                  <small class="mx-2">with</small>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-peace text-info" viewBox="0 0 16 16">
-                    <path
-                      d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.018zm4.084 12.273L8.5 9.207v5.775a6.97 6.97 0 0 0 4.084-1.691zM7.5 14.982V9.207l-4.084 4.084A6.97 6.97 0 0 0 7.5 14.982zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
-                  </svg>
-                  <small class="mx-2">+</small>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-heart-fill text-danger" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
-                  </svg>
-                  <small class="mx-2"> by </small>
-                  <small>
-                    <a href="https://github.com/hedgybeats" target="_blank">hedgybeats</a>
-                  </small>
+                <div class="modal-body bg-dark text-light p-4">
+                  <p>
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
+                    is a simple desktop application that allows you to encrypt and decrypt files.
+                  </p>
+                  <p>
+                    With
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>, you can protect your sensitive data
+                    from prying eyes, whether you're moving it through cloud services or just storing it on your computer.
+                  </p>
+                  <br />
+                  <h5 class="mb-3 underline">Here's how it works:</h5>
+                  <p>
+                    When you encrypt a file,
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
+                    generates an
+                    <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank" class="fst-italics">encryption key</a>
+                    and an
+                    <a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank" class="fst-italics"
+                      >initialization vector (IV)</a
+                    >
+                    and gives them to you.
+                  </p>
+                  <div class="alert alert-danger text-center py-1 px-3 mt-2 mb-3">
+                    <small class="text-danger">
+                      You <strong>MUST</strong> copy these values and store them somewhere safe, because you'll need them to decrypt the
+                      file later!
+                    </small>
+                  </div>
+                  <p class="mt-2">
+                    By default,
+                    <strong class="text-light"> N<span class="text-success">-KRIPT</span> </strong>
+                    uses the Advanced Encryption Standard (AES) algorithm to encrypt your files, which is a widely-used and trusted
+                    encryption standard.
+                  </p>
+                  <div class="alert alert-success text-center py-1 px-3 mt-2 mb-3">
+                    <small>
+                      The number of possible combinations of a 256-bit AES key is 2^256, which is an incredibly large number! To put it in
+                      perspective, the estimated number of atoms in the
+                      <strong>observable universe</strong> is around 10^80, which is much smaller than the number of possible combinations
+                      of a 256-bit key.
+                    </small>
+                  </div>
+                  <div class="d-flex justify-content-center align-items-center pt-4">
+                    <small>Made</small>
+                    <small class="mx-2">with</small>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-peace text-info"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.018zm4.084 12.273L8.5 9.207v5.775a6.97 6.97 0 0 0 4.084-1.691zM7.5 14.982V9.207l-4.084 4.084A6.97 6.97 0 0 0 7.5 14.982zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"
+                      />
+                    </svg>
+                    <small class="mx-2">+</small>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-heart-fill text-danger"
+                      viewBox="0 0 16 16"
+                    >
+                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                    </svg>
+                    <small class="mx-2"> by </small>
+                    <small>
+                      <a href="https://github.com/hedgybeats" target="_blank">hedgybeats</a>
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>
@@ -643,12 +1006,12 @@
         </div>
       </div>
     </div>
-  </div>
-  <!-- scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-    crossorigin="anonymous"></script>
-  <script src="./dist/renderer.js"></script>
-</body>
-
+    <!-- scripts -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <script src="./dist/renderer.js"></script>
+  </body>
 </html>
