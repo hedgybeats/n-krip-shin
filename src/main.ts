@@ -26,9 +26,9 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, "../index.html"));
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
   // maximise the window
   mainWindow.maximize();
+  mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
@@ -80,6 +80,12 @@ function handleIpcEvents() {
   ipcMain.handle("addSecret", (_, args) => repo.addSecret(args[0], args[1], args[2], args[3], args[4], args[5], args[6]));
 }
 
-//TODO Allow for a folder to be encrypted as a feature
-//TODO Investigate progress bar for large files
-//TODO save to vault shortcut
+// TODO Allow for a folder to be encrypted as a feature
+// TODO Investigate progress bar for large files
+// TODO save to vault shortcut
+// TODO add error messages on the create password, add vault item and uodate master password fields
+// TODO Incorporate password expiry. Am thinking to just re-show the set password screen if the password is expired. 
+//      The user could still add an item via the add vault item menu without changing the password but that 
+//      is fine as then they will be forced to update their password before re-entering.
+// TODO Show password hints as tooltips where applicable. 
+// TODO Add buttons to make passwords visible where applicable.

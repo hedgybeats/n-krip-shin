@@ -352,6 +352,10 @@ class App {
     return this.elements.keyVaultGetStartedPasswordFc;
   }
 
+  private get firstPasswordExpiryDateFc() {
+    return this.elements.firstPasswordExpiryDateFc;
+  }
+
   private get showSecretButtons() {
     return document.querySelectorAll("button.show-secret-btn");
   }
@@ -457,7 +461,7 @@ class App {
 
   public async init() {
     this.availableCiphers = await this.api.getAvailableCiphers();
-    await this.setUpDefautltSettings();
+    this.setUpDefautltSettings();
     this.addClickListeners();
     this.addChangeListeners();
     await this.hideVaultWelcome();
@@ -474,6 +478,11 @@ class App {
       this.keyVaultFirstPasswordContainer.classList.add("d-none");
       this.welcomeText.classList.add("d-none");
       this.keyVaultLoginContainer.classList.remove("d-none");
+    } else {
+      // set the first password expiry fc to 2 months from now
+      const now = new Date();
+      now.setMonth(now.getMonth() + 2);
+      this.firstPasswordExpiryDateFc.value = this.formatDate(now);
     }
   }
 
@@ -552,11 +561,19 @@ class App {
       welcomeText: document.getElementById("welcomeText"),
       keyVaultGetStartedBtn: document.getElementById("key-vault-get-started-btn"),
       saveDetailsToKeyVaultBtn: document.getElementById("saveDetailsToKeyVaultBtn"),
+      firstPasswordExpiryDateFc: document.getElementById("firstPasswordExpiryDateFc") as HTMLInputElement,
       keyVaultGetStartedPasswordFc: document.getElementById("keyVaultGetStartedPasswordFc") as HTMLInputElement,
     };
   }
 
-  private async setUpDefautltSettings() {
+  private formatDate(date: Date | undefined = undefined) {
+    date = date ?? new Date();
+    const offset = date.getTimezoneOffset();
+    date = new Date(date.getTime() - offset * 60 * 1000);
+    return date.toISOString().split("T")[0];
+  }
+
+  private setUpDefautltSettings() {
     const preferDeleteAfterEncrypt = window.localStorage.getItem("prefer-delete-after-encrypt");
     this.deleteFileAfterEncrypt.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === "1";
     this.deleteAfterEncryptDefault.checked = preferDeleteAfterEncrypt === null ? false : preferDeleteAfterEncrypt === "1";
@@ -721,8 +738,8 @@ class App {
 
   private addClickListeners() {
     this.saveDetailsToKeyVaultBtn.addEventListener("click", () => {
-      this.keyToAddDisplayNameFc.value = '';
-      this.addItemPasswordFc.value = '';
+      this.keyToAddDisplayNameFc.value = "";
+      this.addItemPasswordFc.value = "";
       this.keyToAddFc.value = this.encryptedKey.getAttribute("data-key");
       this.ivToAddFc.value = this.encryptIv.getAttribute("data-iv");
       this.algorithmToAddFc.value = this.encryptedAlgorithm.getAttribute("data-algorithm");

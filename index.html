@@ -309,7 +309,7 @@
                 class="form-control form-control-sm bg-dark text-light"
                 spellcheck="false"
                 id="keyFc"
-                placeholder="Enter an encryption key."
+                placeholder="Enter an encryption key"
               />
             </div>
           </div>
@@ -324,7 +324,7 @@
                 spellcheck="false"
                 class="form-control form-control-sm bg-dark text-light"
                 id="ivFc"
-                placeholder="Enter an encryption IV."
+                placeholder="Enter an encryption IV"
               />
             </div>
           </div>
@@ -595,18 +595,37 @@
               </div>
             </div>
             <div id="key-vault-first-password-container" class="pt-3">
-              <!-- key vault password -->
+              <!-- key vault first password -->
               <div class="w-100 d-flex justify-content-center">
                 <div class="mb-3 w-50">
                   <label for="keyVaultGetStartedPasswordFc" class="form-label text-light">Set Your Master Password</label>
                   <input
                     required
-                    type="password"
+                    type="test"
                     class="form-control form-control-sm bg-dark text-light"
                     spellcheck="false"
                     id="keyVaultGetStartedPasswordFc"
                     placeholder="Enter your master password (20 - 32 characters)"
                   />
+                </div>
+              </div>
+              <!-- key vault first password hint -->
+              <div class="w-100 d-flex justify-content-center">
+                <div class="mb-3 w-50">
+                  <label for="keyVaultGetStartedPasswordHintFc" class="form-label text-light">Password hint</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm bg-dark text-light"
+                    spellcheck="false"
+                    id="keyVaultGetStartedPasswordHintFc"
+                    placeholder="Enter your a hint to help you remember your master password"
+                  />
+                </div>
+              </div>
+              <div class="w-100 d-flex justify-content-center">
+                <div class="mb-3 w-50">
+                  <label for="firstPasswordExpiryDateFc" class="form-label text-light">Expiry date</label>
+                  <input id="firstPasswordExpiryDateFc" class="form-control form-control-sm w-100 bg-dark text-light w-50" type="date" />
                 </div>
               </div>
               <div id="keyVaultFirstPasswordFc-error" class="error mb-2"></div>
@@ -654,7 +673,7 @@
                     class="form-control form-control-sm bg-dark text-light"
                     spellcheck="false"
                     id="keyVaultPasswordFc"
-                    placeholder="Enter your master password."
+                    placeholder="Enter your master password"
                   />
                 </div>
               </div>
@@ -799,7 +818,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="keyToAddDisplayNameFc"
-                      placeholder="Enter a display name."
+                      placeholder="Enter a display name"
                     />
                   </div>
                   <div class="mb-3 w-100">
@@ -810,7 +829,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="keyToAddFc"
-                      placeholder="Enter a key you would like to store."
+                      placeholder="Enter a key you would like to store"
                     />
                   </div>
                   <div class="mb-3 w-100">
@@ -820,7 +839,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="ivToAddFc"
-                      placeholder="Enter an IV you would like to store."
+                      placeholder="Enter an IV you would like to store"
                     />
                   </div>
                   <div class="mb-3 w-100">
@@ -842,7 +861,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="filePathToAddFc"
-                      placeholder="Enter a file path for the location of the file you encrypted."
+                      placeholder="Enter a file path for the location of the file you encrypted"
                     />
                   </div>
                   <div class="mb-3 w-100">
@@ -853,7 +872,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="addItemPasswordFc"
-                      placeholder="Enter your master password."
+                      placeholder="Enter your master password"
                     />
                   </div>
                   <div class="d-flex justify-content-end">
@@ -904,7 +923,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="updatePasswordOldPasswordFc"
-                      placeholder="Enter your old master password."
+                      placeholder="Enter your old master password"
                     />
                   </div>
                   <div class="mb-4 w-100">
@@ -915,7 +934,7 @@
                       class="form-control form-control-sm bg-dark text-light"
                       spellcheck="false"
                       id="updatePasswordNewPasswordFc"
-                      placeholder="Enter your new master password."
+                      placeholder="Enter your new master password"
                     />
                   </div>
                   <div class="alert alert-warning fade show mb-3" role="alert">
