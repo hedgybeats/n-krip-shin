@@ -344,6 +344,10 @@ class App {
     return this.elements.keyVaultGetStartedBtn;
   }
 
+  private get saveDetailsToKeyVaultBtn() {
+    return this.elements.saveDetailsToKeyVaultBtn;
+  }
+
   private get keyVaultGetStartedPasswordFc() {
     return this.elements.keyVaultGetStartedPasswordFc;
   }
@@ -547,6 +551,7 @@ class App {
       changeMasterPasswordBtn: document.getElementById("changeMasterPasswordBtn"),
       welcomeText: document.getElementById("welcomeText"),
       keyVaultGetStartedBtn: document.getElementById("key-vault-get-started-btn"),
+      saveDetailsToKeyVaultBtn: document.getElementById("saveDetailsToKeyVaultBtn"),
       keyVaultGetStartedPasswordFc: document.getElementById("keyVaultGetStartedPasswordFc") as HTMLInputElement,
     };
   }
@@ -715,6 +720,17 @@ class App {
   }
 
   private addClickListeners() {
+    this.saveDetailsToKeyVaultBtn.addEventListener("click", () => {
+      this.keyToAddDisplayNameFc.value = '';
+      this.addItemPasswordFc.value = '';
+      this.keyToAddFc.value = this.encryptedKey.getAttribute("data-key");
+      this.ivToAddFc.value = this.encryptIv.getAttribute("data-iv");
+      this.algorithmToAddFc.value = this.encryptedAlgorithm.getAttribute("data-algorithm");
+      this.filePathToAddFc.value = this.encryptedOutputPath.getAttribute("data-path");
+
+      this.addVaultItemModel.show();
+    });
+
     this.keyVaultGetStartedBtn.addEventListener("click", () => this.setMasterPassword());
 
     this.changeMasterPasswordBtn.addEventListener("click", async () => this.changeMasterPassword());
@@ -925,6 +941,7 @@ class App {
       this.encryptionInputSelectedFileSize.innerText = "";
       this.startEncryptingBtnContainer.classList.add("d-none");
       this.encryptInputContainer.classList.remove("d-none");
+      this.encryptInput.value = null;
     });
 
     this.decryptRemoveFileButton.addEventListener("click", () => {
@@ -933,6 +950,7 @@ class App {
       this.decryptionInputSelectedFileSize.innerText = "";
       this.startDecryptingBtnContainer.classList.add("d-none");
       this.decryptInputContainer.classList.remove("d-none");
+      this.decryptInput.value = null;
     });
 
     this.startoverEncryptButton.addEventListener("click", () => {
@@ -946,6 +964,7 @@ class App {
       this.clipboardButton.classList.remove("d-none");
       this.clipboardCheckButton.classList.add("d-none");
       this.fileToEncrypt = undefined;
+      this.encryptInput.value = null;
     });
 
     this.startoverDecryptButton.addEventListener("click", () => {
@@ -959,31 +978,32 @@ class App {
       this.deleteFileAfterDecryptContainer.classList.remove("d-none");
       this.selectDecryptAlgorithmContainer.classList.remove("d-none");
       this.decryptResults.classList.add("d-none");
-      this.fileToEncrypt = undefined;
+      this.fileToDecrypt = undefined;
+      this.decryptInput.value = null;
     });
 
-    const copyEncryptionResults = async () => {
-      await navigator.clipboard.writeText(
-        JSON.stringify({
-          key: this.encryptedKey.getAttribute("data-key"),
-          iv: this.encryptIv.getAttribute("data-iv"),
-          algorithm: this.encryptedAlgorithm.getAttribute("data-algorithm"),
-          path: this.encryptedOutputPath.getAttribute("data-path"),
-        })
-      );
-    };
-
     this.clipboardButton.addEventListener("click", async () => {
-      await copyEncryptionResults();
+      await this.copyEncryptionResults();
 
       this.clipboardButton.classList.add("d-none");
       this.clipboardCheckButton.classList.remove("d-none");
     });
 
     this.clipboardCheckButton.addEventListener("click", async () => {
-      await copyEncryptionResults();
+      await this.copyEncryptionResults();
     });
   }
+
+  private copyEncryptionResults = async () => {
+    await navigator.clipboard.writeText(
+      JSON.stringify({
+        key: this.encryptedKey.getAttribute("data-key"),
+        iv: this.encryptIv.getAttribute("data-iv"),
+        algorithm: this.encryptedAlgorithm.getAttribute("data-algorithm"),
+        path: this.encryptedOutputPath.getAttribute("data-path"),
+      })
+    );
+  };
 
   private addChangeListeners() {
     this.encryptInput.addEventListener("change", async (e: Event) => {
